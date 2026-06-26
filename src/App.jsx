@@ -23,7 +23,9 @@ export default function App() {
     <div className="bg-slate-100 text-slate-800 min-h-screen">
       {/* feedback flash overlay */}
       {g.flash && (
-        <div className={`pointer-events-none fixed inset-0 z-50 animate-flash ${g.flash === 'good' ? 'bg-emerald-400' : 'bg-rose-500'}`} />
+        <div
+          className={`pointer-events-none fixed inset-0 z-50 animate-flash ${g.flash === 'good' ? 'bg-emerald-400' : 'bg-rose-500'}`}
+        />
       )}
 
       <Header />
@@ -35,7 +37,10 @@ export default function App() {
             return (
               <button
                 key={t.key}
-                onClick={() => { setTab(t.key); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => {
+                  setTab(t.key)
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
                 className={`px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 ${on ? 'border-emerald-500 text-slate-900' : 'border-transparent text-slate-500'}`}
               >
                 {t.label}

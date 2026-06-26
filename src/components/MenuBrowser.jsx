@@ -16,13 +16,26 @@ export default function MenuBrowser() {
     let items = DISHES.filter((d) => sec === 'all' || d.sec === sec)
     if (needle) {
       items = items.filter((d) => {
-        const hay = (d.name + ' ' + d.desc + ' ' + d.process + ' ' + d.allergies + ' ' +
-          Object.keys(d.flags).map((k) => ALLERGEN_LABEL[k]).join(' ')).toLowerCase()
+        const hay = (
+          d.name +
+          ' ' +
+          d.desc +
+          ' ' +
+          d.process +
+          ' ' +
+          d.allergies +
+          ' ' +
+          Object.keys(d.flags)
+            .map((k) => ALLERGEN_LABEL[k])
+            .join(' ')
+        ).toLowerCase()
         return hay.includes(needle)
       })
     }
     const g = {}
-    items.forEach((d) => { (g[d.sec] = g[d.sec] || []).push(d) })
+    items.forEach((d) => {
+      ;(g[d.sec] = g[d.sec] || []).push(d)
+    })
     return g
   }, [q, sec])
 
@@ -51,19 +64,30 @@ export default function MenuBrowser() {
       </div>
 
       <div className="mt-3 space-y-2">
-        {!hasResults && <div className="text-center text-slate-400 py-10">No dishes match “{q}”.</div>}
-        {Object.keys(SECTIONS).filter((s) => groups[s]).map((s) => (
-          <div key={s} className="pt-1">
-            <div className="flex items-center gap-2 px-1 py-1">
-              <span className={`w-1.5 h-5 rounded-full ${secBar(s)}`} />
-              <h3 className="font-bold text-slate-700">{SECTIONS[s].emoji} {s}</h3>
-              <span className="text-xs text-slate-400">{groups[s].length}</span>
+        {!hasResults && (
+          <div className="text-center text-slate-400 py-10">No dishes match “{q}”.</div>
+        )}
+        {Object.keys(SECTIONS)
+          .filter((s) => groups[s])
+          .map((s) => (
+            <div key={s} className="pt-1">
+              <div className="flex items-center gap-2 px-1 py-1">
+                <span className={`w-1.5 h-5 rounded-full ${secBar(s)}`} />
+                <h3 className="font-bold text-slate-700">
+                  {SECTIONS[s].emoji} {s}
+                </h3>
+                <span className="text-xs text-slate-400">{groups[s].length}</span>
+              </div>
+              {groups[s].map((d) => (
+                <Row
+                  key={d.id}
+                  dish={d}
+                  open={!!open[d.id]}
+                  onToggle={() => setOpen((o) => ({ ...o, [d.id]: !o[d.id] }))}
+                />
+              ))}
             </div>
-            {groups[s].map((d) => (
-              <Row key={d.id} dish={d} open={!!open[d.id]} onToggle={() => setOpen((o) => ({ ...o, [d.id]: !o[d.id] }))} />
-            ))}
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   )
@@ -85,7 +109,9 @@ function Row({ dish, open, onToggle }) {
           <Field label="Process" value={dish.process} />
           <Field label="Allergies & replacements" value={dish.allergies} tone="rose" />
           <Field label="Mise en place" value={dish.mise} tone="slate" />
-          <div className="mt-2"><FlagPills dish={dish} /></div>
+          <div className="mt-2">
+            <FlagPills dish={dish} />
+          </div>
         </div>
       )}
     </div>

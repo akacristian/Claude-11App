@@ -8,7 +8,9 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
       <div className="max-w-4xl mx-auto px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center font-black text-lg shrink-0">11</div>
+          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center font-black text-lg shrink-0">
+            11
+          </div>
           <div className="min-w-0">
             <h1 className="font-extrabold leading-tight text-slate-900">Eleven Barrack</h1>
             <p className="text-xs text-slate-500 -mt-0.5">Food Notes Trainer · May 2026</p>
@@ -28,9 +30,14 @@ export default function Header() {
         <div className="mt-2 flex items-center gap-2">
           <span className="text-xs font-bold text-slate-700 shrink-0">Lv {li.lvl}</span>
           <div className="flex-1 h-2.5 rounded-full bg-slate-200 overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500" style={{ width: li.pct + '%' }} />
+            <div
+              className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500"
+              style={{ width: li.pct + '%' }}
+            />
           </div>
-          <span className="text-[10px] text-slate-400 shrink-0 tabular-nums">{li.into}/{li.need}</span>
+          <span className="text-[10px] text-slate-400 shrink-0 tabular-nums">
+            {li.into}/{li.need}
+          </span>
         </div>
       </div>
     </header>

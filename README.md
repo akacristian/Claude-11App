@@ -61,5 +61,5 @@ Allergen flags follow the notes precisely with three states:
 - **modifiable** (safe with a substitution or omission — e.g. AP Baguette dairy → olive oil),
 - **absent** (safe).
 
-The halal flag marks dishes that are *not* halal. No culinary details were invented;
+The halal flag marks dishes that are _not_ halal. No culinary details were invented;
 flags derive from the explicit "Allergies – Replacements" notes and named ingredients.

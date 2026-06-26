@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eleven Barrack · Food Notes Trainer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  if (window.tailwind) tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        keyframes: {
+          pop: { '0%': { transform: 'scale(.96)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
+          shake: { '10%,90%': { transform: 'translateX(-2px)' }, '30%,70%': { transform: 'translateX(4px)' }, '50%': { transform: 'translateX(-6px)' } },
+          flash: { '0%': { opacity: '.85' }, '100%': { opacity: '0' } },
+        },
+        animation: {
+          pop: 'pop .18s ease-out',
+          shake: 'shake .4s ease',
+          flash: 'flash .5s ease-out forwards',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html { -webkit-tap-highlight-color: transparent; }
+  .card-3d { perspective: 1200px; }
+  .card-inner { transition: transform .5s; transform-style: preserve-3d; }
+  .card-inner.flipped { transform: rotateY(180deg); }
+  .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .card-back { transform: rotateY(180deg); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+
+<!-- full-screen feedback flash -->
+<div id="flash" class="pointer-events-none fixed inset-0 z-50 hidden"></div>
+
+<!-- ===================== HEADER / HUD ===================== -->
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
+  <div class="max-w-4xl mx-auto px-4 py-3">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center font-black text-lg shrink-0">11</div>
+      <div class="min-w-0">
+        <h1 class="font-extrabold leading-tight text-slate-900">Eleven Barrack</h1>
+        <p class="text-xs text-slate-500 -mt-0.5">Food Notes Trainer · May 2026</p>
+      </div>
+      <div class="ml-auto flex items-center gap-2 sm:gap-3">
+        <div class="text-right">
+          <div class="flex items-center gap-1 justify-end">
+            <span class="text-orange-500">🔥</span>
+            <span id="hud-streak" class="font-bold tabular-nums">0</span>
+          </div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-400">streak</div>
+        </div>
+        <div class="text-right">
+          <div class="flex items-center gap-1 justify-end">
+            <span class="text-yellow-500">⭐</span>
+            <span id="hud-xp" class="font-bold tabular-nums">0</span>
+          </div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-400">XP</div>
+        </div>
+        <button id="btn-mute" title="Toggle sound" class="w-9 h-9 grid place-items-center rounded-lg hover:bg-slate-100 text-lg">🔊</button>
+      </div>
+    </div>
+    <!-- level / progress bar -->
+    <div class="mt-2 flex items-center gap-2">
+      <span id="hud-level" class="text-xs font-bold text-slate-700 shrink-0">Lv 1</span>
+      <div class="flex-1 h-2.5 rounded-full bg-slate-200 overflow-hidden">
+        <div id="hud-bar" class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500" style="width:0%"></div>
+      </div>
+      <span id="hud-next" class="text-[10px] text-slate-400 shrink-0 tabular-nums">0/100</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== TAB BAR ===================== -->
+<nav class="sticky top-[88px] z-30 bg-slate-100/95 backdrop-blur border-b border-slate-200">
+  <div class="max-w-4xl mx-auto px-2 flex gap-1 overflow-x-auto no-scrollbar">
+    <button data-tab="home"      class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">🏠 Home</button>
+    <button data-tab="flash"     class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">🃏 Flashcards</button>
+    <button data-tab="quiz"      class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">❓ Quiz</button>
+    <button data-tab="guard"     class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">🛡️ Allergy Guard</button>
+    <button data-tab="browser"   class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">📖 Menu</button>
+  </div>
+</nav>
+
+<main class="max-w-4xl mx-auto px-4 py-5 pb-24">
+
+  <!-- ===================== HOME ===================== -->
+  <section id="tab-home" class="tab-panel space-y-4"></section>
+
+  <!-- ===================== FLASHCARDS ===================== -->
+  <section id="tab-flash" class="tab-panel hidden"></section>
+
+  <!-- ===================== QUIZ ===================== -->
+  <section id="tab-quiz" class="tab-panel hidden"></section>
+
+  <!-- ===================== ALLERGY GUARD ===================== -->
+  <section id="tab-guard" class="tab-panel hidden"></section>
+
+  <!-- ===================== MENU BROWSER ===================== -->
+  <section id="tab-browser" class="tab-panel hidden"></section>
+
+</main>
+
+<script>
+/* =========================================================================
+   DATA — parsed verbatim from "Eleven Barrack Food Notes May 2026".
+   flags use: 'yes' = present / cannot be removed (UNSAFE),
+              'mod' = can be made safe with a substitution/omission,
+              (omitted) = not present (SAFE).
+   keys: shellfish, fish, gluten, dairy, egg, nuts, sesame, alliums,
+         nightshade, halal (yes = NOT halal), alcohol.
+   ========================================================================= */
+const SECTIONS = {
+  "Appetisers":            { color:"amber",  emoji:"🦪" },
+  "Breads":                { color:"orange", emoji:"🥖" },
+  "Starters":              { color:"lime",   emoji:"🥗" },
+  "Pasta":                 { color:"yellow", emoji:"🍝" },
+  "Salads":                { color:"green",  emoji:"🥬" },
+  "Mains":                 { color:"rose",   emoji:"🍽️" },
+  "For the Table":         { color:"purple", emoji:"🍖" },
+  "Steaks From the Grill": { color:"red",    emoji:"🥩" },
+  "Sides":                 { color:"teal",   emoji:"🍟" },
+  "Dessert":               { color:"pink",   emoji:"🍰" },
+  "Cheese":                { color:"indigo", emoji:"🧀" },
+  "Bar Menu":              { color:"cyan",   emoji:"🍔" },
+};
+
+const DISHES = [
+/* 1 */ { id:1, sec:"Appetisers", name:"Appellation Oysters",
+  desc:"Sydney Rock Oysters [from Location] served with mignonette.",
+  process:"Oysters are shucked to order and served on rock salt with lemon cheek and mignonette. Mignonette is made from Red Wine Vinegar, Sugar, and finished with eschalots, chives and black pepper.",
+  allergies:"Shellfish, Seafood. Alliums – in mignonette, can be removed.",
+  mise:"Oyster Fork – Waiter to place on table. Small silver spoon with mignonette.",
+  flags:{ shellfish:'yes', fish:'yes', alliums:'mod' } },
+
+/* 2 */ { id:2, sec:"Appetisers", name:"Fried Ricotta Dumplings (Cod Roe OR Baerri Caviar)",
+  desc:"Fried ricotta dumplings with whipped cod roe OR Baerri Caviar.",
+  process:"Dumplings are made from ricotta, lemon zest, salt, baking powder and egg. Piped onto a spoon and deep fried to order. Once cooked they are seasoned with Kombu powder (dehydrated Taki Kombu) and served with either whipped cod roe or Baerri Caviar (if Caviar, also served with creme fraiche and chives garnish). Whipped Cod Roe is made from Salted Cod roe.",
+  allergies:"Dairy (Ricotta, Creme Fraiche) cannot be modified. Contains egg. Contains Gluten. Seafood > leave the roe or caviar off. Fish > leave the roe or caviar off. Alliums: Chives > can be left off.",
+  mise:"Small spoon with roe.",
+  flags:{ gluten:'yes', dairy:'yes', egg:'yes', fish:'mod', alliums:'mod' } },
+
+/* 3 */ { id:3, sec:"Appetisers", name:"Pickled Oyster Mushroom Skewer",
+  desc:"Oyster mushroom skewer with sesame yoghurt and chilli crunch.",
+  process:"Lightly pickled oyster mushrooms are glazed in pomegranate molasses and mushroom reduction then torched. Finished with sesame yoghurt, chilli crunch, tarragon and chives.",
+  allergies:"Chilli (can be removed but not advised as key element). Sesame, dairy, garlic.",
+  mise:"One serve = one skewer.",
+  flags:{ dairy:'yes', sesame:'yes', alliums:'yes' } },
+
+/* 4 */ { id:4, sec:"Appetisers", name:"Sweetcorn Custard, Puffed Black Rice (OFF MENU)",
+  desc:"Sweetcorn custard with puffed black rice, on the side endive leaf and rice cracker.",
+  process:"Corn is grilled then blended with flora (vegan plant based cream), seasoned with savoury yeast flakes, gf soy, and salt. Pickled corn kernels on top, puffed wild rice, and pimento oil. Served on the side with endive leaf and rice cracker lightly dusted with tomato powder.",
+  allergies:"Nightshade (tomato/pimento) can be removed. Sesame in the cracker. Vegan, gluten free and dairy free.",
+  mise:"Small teaspoon.",
+  flags:{ sesame:'yes', nightshade:'mod' } },
+
+/* 5 */ { id:5, sec:"Appetisers", name:"Bluefin Tuna Crumpet, Horseradish Cream",
+  desc:"Tuna crumpet with horseradish cream and chives.",
+  process:"Sourdough crumpet made from flour, yeast, water; layer of horseradish cream (sour cream, horseradish, Japanese mustard). Topped with raw diced tuna, dressed in white soy, olive oil, rice wine vinegar and sliced chives.",
+  allergies:"Seafood. Alliums > No chives. Cannot be gluten free (crumpet + white soy). Dairy (horseradish cream) > can be left off for dairy.",
+  mise:"Knife.",
+  flags:{ fish:'yes', gluten:'yes', dairy:'mod', alliums:'mod' } },
+
+/* 6 */ { id:6, sec:"Appetisers", name:"Choux au Craquelin, Duck Liver Parfait, Banyuls Jelly",
+  desc:"Choux au Craquelin with Duck Liver Parfait and Banyuls Jelly.",
+  process:"The choux is piped into balls and baked with craquelin and a Banyuls Jelly is dotted on top.",
+  allergies:"Contains gluten. Contains cooked-out alcohol in banyuls jelly on top and reduction for the parfait (banyuls can be omitted).",
+  mise:"Fork & spoon.",
+  flags:{ gluten:'yes', alcohol:'mod' } },
+
+/* 7 */ { id:7, sec:"Appetisers", name:"Crisp Flathead Goujons, Tartare Sauce",
+  desc:"Snapper goujons served with oyster tartare.",
+  process:"Snapper fillet is cut into bite-size pieces and fried in a tempura batter (rice flour, water, salt). Served with a sauce made from oysters, olive oil, garlic, capers, cornichons, chives.",
+  allergies:"Can be Gluten free but not coeliac friendly (fried in same oils). Dipping sauce has alliums, seafood, garlic, oysters/shellfish – cannot modify.",
+  mise:"Dipping sauce cannot be modified.",
+  flags:{ shellfish:'yes', fish:'yes', gluten:'mod', alliums:'yes' } },
+
+/* 8 */ { id:8, sec:"Appetisers", name:"2GR Full-Blood Wagyu Bresaola – 50g",
+  desc:"Full-blood Wagyu Bresaola (currently only on bar menu).",
+  process:"Sliced thin Wagyu Bresaola.",
+  allergies:"Not halal.",
+  mise:"Fork and spoon.",
+  flags:{ halal:'yes' } },
+
+/* 9 */ { id:9, sec:"Appetisers", name:"Abrolhos Island Scallops, Mandarin Brown Butter",
+  desc:"Abrolhos Island Scallop, mandarin brown butter and coriander oil.",
+  process:"2 portions per serve. Scallops are raw – sliced in half and placed on the bottom, seasoned with salt and umami vin (olive oil, rice wine vin, gluten free soy), covered with mandarin butter (mandarin juice, cayenne, brown butter, white balsamic and shiso soy), mandarin segments and persimmon discs, coriander oil, and fresh micro coriander garnish. Save the shells for re-use.",
+  allergies:"Cannot be dairy free. Cannot be gluten free. Can be allium free. Contains champagne vinegar – check if guests avoiding alcohol though % is very minor.",
+  mise:"2 portions per serve.",
+  flags:{ shellfish:'yes', dairy:'yes', gluten:'yes', alliums:'mod', alcohol:'mod' } },
+
+/* 10 */ { id:10, sec:"Breads", name:"AP Baguette, Cultured Butter",
+  desc:"AP Baguette, side of cultured butter.",
+  process:"Sourdough baguette supplied by AP Bakery; served with cultured butter. 1 serve is 4 slices of bread between 2 pax.",
+  allergies:"Gluten > Gluten free bread. Dairy > swap of Olive Oil.",
+  mise:"Butter dish side.",
+  flags:{ gluten:'mod', dairy:'mod' } },
+
+/* 11 */ { id:11, sec:"Breads", name:"Smoked Garlic and Herb Bread, Aged Cheddar",
+  desc:"Smoked garlic and herb bread with aged cheddar (one portion).",
+  process:"Pull-apart milk loaf, toasted under salamander (with butter), cheese, gratinate (caramelising on the top).",
+  allergies:"Dairy, Garlic, Gluten. Cannot be modified.",
+  mise:"Waiter to set bread plates on the side.",
+  flags:{ dairy:'yes', gluten:'yes', alliums:'yes' } },
+
+/* 12 */ { id:12, sec:"Breads", name:"Sourdough Toast, Crab Butter, Parsley, Dill",
+  desc:"Crab toast with crab butter, topped with dill.",
+  process:"AP sesame and fenugreek sourdough, toasted; pipe the soft crab butter on top (butter made from roasted crab stock, fennel, tomato, cayenne, eschalot, white soy, ginger). Garnished with parsley and dill.",
+  allergies:"Can't be modified for gluten (white soy in stock). Sesame allergy cannot be modified. Shellfish, Nightshade, dairy (butter), alliums: eschalot (butter).",
+  mise:"None.",
+  flags:{ shellfish:'yes', gluten:'yes', dairy:'yes', sesame:'yes', alliums:'yes', nightshade:'yes' } },
+
+/* 13 */ { id:13, sec:"Starters", name:"Jerusalem Artichoke Tart, Cavolo Nero, Hazelnut, Citrus Sabayon",
+  desc:"Roast Jerusalem artichoke tart, layered with cavolo nero, caramelised onion and a citrus sabayon sauce.",
+  process:"Artichokes roasted then warmed with a verde (hazelnut, garlic, rappe, lemon juice), seasoned with salt, pepper, chives. Set in a brisée tart shell over caramelised onion. Pickled eschalots and a citrus sabayon (yuzu kosho, yuzu juice, egg) on top, seasoned with wakame powder. Rappe Verde contains: mint, herbs, hazelnut, ginger, garlic, eschalot, cime de rapa, white balsamic, pickled eschalots, citrus sabayon.",
+  allergies:"Gluten – cannot be made gluten free. Dairy – cannot be made dairy free. Nuts – contains hazelnuts in the rappe verde. Eggs – the sabayon contains eggs. Capsaicin – contains peppers in the sabayon as yuzu kosho contains green chilli.",
+  mise:"Fork and spoon.",
+  flags:{ gluten:'yes', dairy:'yes', nuts:'yes', egg:'yes', alliums:'yes', nightshade:'yes' } },
+
+/* 14 */ { id:14, sec:"Starters", name:"Ora King Salmon Parfait, Pickled Radish, Salmon Roe",
+  desc:"King Ora salmon parfait, served with pickled radish, salmon roe.",
+  process:"Made with ora king salmon, cream, milk, garlic (can't omit), gf soy (in Thermomix). Jelly is rose jelly – alcohol burnt off in cooking. Served with pickled radish, salmon roe and a side of grilled bread. Fish is cooked to 65 deg, safe for pregnant people as not raw.",
+  allergies:"Seafood + Fish. Contains Citrus. Not dairy free or allium free. Contains cooked-out alcohol – cannot omit. Coeliac okay, crackers to replace grilled sourdough.",
+  mise:"Knife.",
+  flags:{ fish:'yes', gluten:'mod', dairy:'yes', alliums:'yes', alcohol:'yes' } },
+
+/* 15 */ { id:15, sec:"Starters", name:"Raw Bluefin Tuna, Green Olive, Creme Fraiche",
+  desc:"Raw bluefin tuna, green olive, creme fraiche.",
+  process:"On the bottom a green olive and plum salsa with confit eschalot mixed throughout (cannot take out the eschalots), a squiggle of creme fraiche seasoned with perilla shiso soy (smoked fish bones and perilla leaves). Tuna sliced and laid on top (lightly brined). Topped with pickled eschalot rings, more creme fraiche, and chives.",
+  allergies:"Cannot modify for alliums. The shiso soy is not gluten free, so if gluten, swap for regular creme fraiche. Dairy – can be left off for the creme fraiche.",
+  mise:"Entrée fork.",
+  flags:{ fish:'yes', gluten:'mod', dairy:'mod', alliums:'yes' } },
+
+/* 16 */ { id:16, sec:"Starters", name:"Wagyu Beef Tartare, Caramelised Mustard, Tarragon",
+  desc:"Wagyu beef tartare topped with caramelised mustard and tarragon.",
+  process:"Diced beef seasoned with eschalots, hot sauce, Worcestershire, olive oil, parsley, tarragon, salt and pepper, placed inside a marrow bone. Caramelised mustard is a sabayon (contains egg, hot english, dijon), torched to caramelise, chives on top. Served with lavosh cracker on the side.",
+  allergies:"Contains alliums – can be left out. Gluten – toasted baguette; gluten free bread available. Worcestershire contains anchovies – seafood allergy.",
+  mise:"Entrée fork and spoon. Gluten – swap the crackers out.",
+  flags:{ fish:'yes', gluten:'mod', egg:'yes', alliums:'mod' } },
+
+/* 17 */ { id:17, sec:"Starters", name:"Duck, Pork and Pistachio Terrine",
+  desc:"Duck, pork and pistachio terrine with pickled prune puree.",
+  process:"Terrine of duck breast, pork fat, chicken liver, pork mince and pistachio, plus brandy, garlic and black and white pepper. Cooked in a mould and jellied while hot (jelly contains white soy, salt and gelatin). Cut around 100g, served with pickled prune puree, white onion mustard, and mustard emulsion.",
+  allergies:"Jelly has white soy – contains gluten, cannot be removed. Nuts cannot be removed. Alliums cannot be removed. Is dairy free. Not halal friendly. Not suitable for pregnant people.",
+  mise:"Knife.",
+  flags:{ gluten:'yes', nuts:'yes', alliums:'yes', halal:'yes', alcohol:'yes' } },
+
+/* 18 */ { id:18, sec:"Pasta", name:"Radiatori Stracciatella, Zucchini, Pea and Mint",
+  desc:"Radiatori with stracciatella, zucchini, pea shoots and mint.",
+  process:"Zucchini, mint and basil blitzed into a paste as the sauce base; pasta tossed through, garnished with stracciatella, pea shoots, preserved lemon and pangrattato (breadcrumb garnish – breadcrumbs, nothing added).",
+  allergies:"Gluten (substitute for vegan pasta) and no crumb. Contains alliums in the crumb. Pasta is egg free. Pasta shape is vegan friendly.",
+  mise:"Fork + spoon.",
+  flags:{ gluten:'mod', dairy:'yes', alliums:'mod' } },
+
+/* 19 */ { id:19, sec:"Pasta", name:"Mafaldine Pork and Prawn Bolognese",
+  desc:"Mafaldine pasta with pork and prawn bolognaise.",
+  process:"A bolognese of pork mince, dried shrimp, onion, carrot, celery, kombu and tomato warmed with shellfish oil before chopped prawn meat is added. Mafaldine (long flat pasta with wavy edges) tossed through. Finished with sliced chives, parmesan cheese and cracked pepper.",
+  allergies:"Shellfish/crustaceans, Egg (pasta), Pork, Nightshade, Alliums, Dairy, not Halal :: NO MODIFICATIONS. Dairy > leave off cheese.",
+  mise:"Fork + spoon. Core allergens cannot be modified.",
+  flags:{ shellfish:'yes', gluten:'yes', egg:'yes', dairy:'mod', alliums:'yes', nightshade:'yes', halal:'yes' } },
+
+/* 20 */ { id:20, sec:"Pasta", name:"Prawn Ravioli, Spanner Crab, Sauce Vierge",
+  desc:"Prawn Ravioli, Spanner crab, sauce vierge, hazelnuts, tomato.",
+  process:"One larger square ravioli stuffed with prawn mousse, with mascarpone and chives in the mix. Sauce vierge made by roasting tomatoes, removing skins and blitzing with white wine vinegar, olive oil, salt, pepper; garnished with eschalot and herbs. Finished with spanner crab meat and tomatoes. Roasted hazelnuts sprinkled through.",
+  allergies:"Egg, Gluten, Dairy, Allium, garlic, onion (sauce), nuts (hazelnuts). Can be made allium and nut free.",
+  mise:"Fork and spoon.",
+  flags:{ shellfish:'yes', gluten:'yes', dairy:'yes', egg:'yes', nuts:'mod', alliums:'mod', nightshade:'yes' } },
+
+/* 21 */ { id:21, sec:"Pasta", name:"Spaghetti, Balmain Bug, Prawn, Pippies, Crab Sauce",
+  desc:"Spaghetti with Balmain bug, prawn, pippies, and a crab sauce.",
+  process:"Sauté shallots in oil, add seafood bisque (prawn shell, carrot, celery, white wine), backed out with tomato (sautéed in olive oil, thyme and garlic), cooked down, blended, steep lime leaves, strain. Add Moreton bay bug trim, shrimp, clams, butter, creme fraiche, tarragon. Garnished with chopped tarragon and shellfish oil.",
+  allergies:"Shellfish/crustacean, dairy, gluten, egg, nightshades, alliums, garlic.",
+  mise:"Fork + spoon.",
+  flags:{ shellfish:'yes', gluten:'yes', dairy:'yes', egg:'yes', alliums:'yes', nightshade:'yes' } },
+
+/* 22 */ { id:22, sec:"Salads", name:"Roast Carrot and Wild Rice Salad, Toasted Almond",
+  desc:"Roast carrot and wild rice salad, toasted almond and watercress.",
+  process:"Carrots foil-poached then grilled over coals. Toasted almond sauce on the base, carrots tossed in a carrot dressing (reduced carrot juice and spices), toasted almond, cooked wild rice and parsley. Topped with marinated carrot ribbons and watercress; extra carrot dressing and olive oil.",
+  allergies:"Nuts. Garlic and eschalots.",
+  mise:"Fork and spoon.",
+  flags:{ nuts:'yes', alliums:'yes' } },
+
+/* 23 */ { id:23, sec:"Salads", name:"Pickled Kohlrabi, Granny Smith Apple, Parmesan, Hazelnut",
+  desc:"Kohlrabi salad, apple, parmesan and toasted hazelnut.",
+  process:"Apple and pear sliced on the mandolin and marinated; kohlrabi diced; all lightly pickled in rice wine vinegar, mint, olive oil and maple syrup. Pear and apple on the base, topped with kohlrabi, dressed with a parmesan dressing (parmesan, dijon, olive oil) and an apple dressing (green tabasco, lemon juice, apple juice, rice wine vinegar). Finished with shaved parmesan, chives, toasted hazelnuts and grape must vinegar.",
+  allergies:"Nuts – can be removed. Alliums – can be done allium free. Is gluten free. Can be dairy free without the parm and dressing but not recommended. Alcohol in the rice wine vinegar – check for halal guests.",
+  mise:"Fork and spoon.",
+  flags:{ nuts:'mod', dairy:'mod', alliums:'mod', alcohol:'mod', halal:'mod' } },
+
+/* 24 */ { id:24, sec:"Salads", name:"Roasted Beetroot, Pepita Crumb, Radicchio, Dill",
+  desc:"Pickled beetroots, dressed in a beetroot dressing with pepita puree on the bottom and radicchio leaves.",
+  process:"Beetroot roasted then pickled (sherry vinegar and white balsamic vinegar based), cut into wedges. Served with a pepita puree on the bottom, dressing made from its pickling liquor, and dressed radicchio.",
+  allergies:"Trace amounts of gluten in pepita puree. Vinegar across the entire dish (check for halal / if vinegar okay). Otherwise vegan and gluten free friendly (if traces okay).",
+  mise:"Fork and spoon.",
+  flags:{ gluten:'yes', alcohol:'mod', halal:'mod' } },
+
+/* 25 */ { id:25, sec:"Salads", name:"Marinated Tuna Salad, Strawberry, Heirloom Tomato (Set Menu)",
+  desc:"Marinated tuna salad, strawberry, heirloom tomato, basil.",
+  process:"Strawberries and tomatoes sliced fresh, layered across the plate, tuna laid on top. Dressed with umami vin (olive oil, kombu extract, rice wine vinegar); dressing is tomato water (has garlic), fermented strawberry juice, coriander seed, olive oil and rice wine vinegar. Finished with basil.",
+  allergies:"Seafood / Raw Fish. Alcohol (vinegar). Cannot be allium free because of the garlic. Gluten free.",
+  mise:"Fork and spoon.",
+  flags:{ fish:'yes', alliums:'yes', nightshade:'yes', alcohol:'yes', halal:'mod' } },
+
+/* 26 */ { id:26, sec:"Salads", name:"Glazed Chicken, Iceberg Lettuce, Radish, Herb Yoghurt",
+  desc:"Glazed chicken salad with lardons and charred corn.",
+  process:"Bannockburn chicken breast brined then slow roasted at 120C, rested and glazed (sherry vinegar, honey, roasted capsicum), finished over coals. Salad base of lettuce, radish and cucumber. Herb yoghurt (tarragon, dill, rice wine vinegar). Croutons tossed through with basil; cured egg yolk microplaned over top, and chives.",
+  allergies:"Dairy – can be omitted by using an alternate dressing/yoghurt. Allium – can be omitted, take chives off. Is gluten free – remove the breadcrumbs. Egg free – just remove the egg. Alcohol: small amounts in sherry vinegar. Nightshades in the chicken glaze (capsicum).",
+  mise:"Fork and spoon.",
+  flags:{ dairy:'mod', alliums:'mod', gluten:'mod', egg:'mod', nightshade:'yes', alcohol:'mod' } },
+
+/* 27 */ { id:27, sec:"Mains", name:"Cauliflower, Cippolini Onions & Parmesan Gratin",
+  desc:"Cauliflower, hazelnut and parmesan gratin.",
+  process:"Gratin of sliced cauliflower, roasted and caramelised in brown butter, parmesan and chives. Sauce of white soy, butter, roasted cauliflower and buttermilk + hazelnut oil. Topped with soft herbs and pickled eschalot.",
+  allergies:"Can be nut free without the nut oil. Cannot be dairy free. Cannot be gluten free. Cannot be made allium free.",
+  mise:"Fork and spoon.",
+  flags:{ nuts:'mod', dairy:'yes', gluten:'yes', alliums:'yes' } },
+
+/* 28 */ { id:28, sec:"Mains", name:"Steamed Goldband Snapper, Chive Butter Sauce, Trout Roe",
+  desc:"Steamed snapper with a chive butter sauce.",
+  process:"Steamed with salt and olive oil (in bag), served with a chive butter sauce (beurre blanc) of butter, white balsamic vinegar, lemon juice, Mirin. Sauce underneath, fish on top. 180–200g. One portion not sliced.",
+  allergies:"Dairy in sauce (sauce can be served on the side for DF). Alliums: sauce on side only. Can be gluten free. Mirin in the sauce > alcohol.",
+  mise:"Fork and spoon.",
+  flags:{ fish:'yes', dairy:'mod', alliums:'mod', alcohol:'mod' } },
+
+/* 29 */ { id:29, sec:"Mains", name:"Spiced Tuna Steak, Pepper and Beaujolais Jus",
+  desc:"Spiced tuna loin steak served with a pepper and Beaujolais jus.",
+  process:"Tuna loin coated with dijon mustard, black pepper, fennel seed, coriander seed, panko crumb, cumin. Cooked à la plancha; served with a red wine jus containing charred pimento peppers, cumin, paprika, wine, beef jus.",
+  allergies:"Contains garlic, not Halal friendly. Beef in the jus – leave out for pescatarian. Nightshades – pimento peppers and paprika in jus. Contains gluten, alcohol.",
+  mise:"Fork, spoon.",
+  flags:{ fish:'yes', alliums:'yes', nightshade:'yes', gluten:'yes', alcohol:'yes', halal:'yes' } },
+
+/* 30 */ { id:30, sec:"Mains", name:"Spanner Crab and Fish Pie, Shellfish Bisque",
+  desc:"Spanner crab and fish pie, served with a shellfish bisque.",
+  process:"Baby spinach at the base of a pie mould, topped with picked spanner crab meat, cayenne, dijon and a crab veloute (milk, cream, butter, flour, crab stock), white fish folded through (typically hapuka). Covered with pastry (flour, salt, butter, eggs) and baked to order. Served on a shellfish bisque (shellfish stock, cream, tomato, saffron, onions, celery, carrot).",
+  allergies:"Egg, Dairy, Shellfish, Allium, Gluten, seafood, nightshades, onion. None of the above can be altered.",
+  mise:"Fork, spoon. Lemon cheek served.",
+  flags:{ shellfish:'yes', fish:'yes', egg:'yes', dairy:'yes', alliums:'yes', gluten:'yes', nightshade:'yes' } },
+
+/* 31 */ { id:31, sec:"For the Table", name:"Grilled Eastern Rock Lobster, Shellfish Butter",
+  desc:"Grilled Eastern Rock Lobster, shellfish butter, tarragon, lime.",
+  process:"Grilled with crab butter, finished with more crab butter and shellfish bisque. Served on the side: a rice dish (risotto) with chorizo and shellfish sauce, charred lemon and finger lime.",
+  allergies:"Cannot be made DF or GF.",
+  mise:"Fork, spoon and teaspoons for sauces.",
+  flags:{ shellfish:'yes', dairy:'yes', gluten:'yes', halal:'yes' } },
+
+/* 32 */ { id:32, sec:"For the Table", name:"Coal Roasted Murray Cod, Fermented Red Pepper Butter",
+  desc:"Murray Cod with fermented red pepper butter and soft herbs.",
+  process:"A piece of Murray Cod (approx 320g) dried then roasted over coals. Red peppers (capsicums) charred then peeled, blended with vinegars, red yuzu kosho and butter.",
+  allergies:"Nightshades, dairy (butter) cannot be done without.",
+  mise:"Fork, spoon.",
+  flags:{ fish:'yes', nightshade:'yes', dairy:'yes' } },
+
+/* 33 */ { id:33, sec:"For the Table", name:"Kurobuta Pork Tomahawk, Blood Plum Glaze",
+  desc:"Kurobuta tomahawk served with a blood plum glaze.",
+  process:"Kurobuta pork coated with a glaze of blood plum, sherry vinegar; cooked over the coals, carved and served with red wine jus.",
+  allergies:"Alliums – can be omitted by removing red wine jus. Alliums and gluten in pork glaze – there is also the pork glaze in the sauce.",
+  mise:"—",
+  flags:{ halal:'yes', alliums:'yes', gluten:'yes', alcohol:'mod' } },
+
+/* 34 */ { id:34, sec:"For the Table", name:"800g O'Connor Whole Chateaubriand Roast, Bearnaise",
+  desc:"800g whole chateaubriand with condiments. Present to the table; pour jus over beef. Silver serve plates: slice of beef per pax, each with turnip, carrots and English spinach. Bearnaise on the side; mustards on side.",
+  process:"A whole chateaubriand (thickest part of a beef fillet) rolled and sous vide at 55C for 2 hours till rare, brought back to temperature and finished in a pan with butter, rolled over the coals. Served in a copper tray with red wine jus, roasted turnips, Dutch carrots, English spinach. Also served with bearnaise and mustards. 40 mins to prepare if ordered straight up. Cannot be cooked half-half a different temperature due to sous-vide.",
+  allergies:"Bearnaise – white wine, butter, egg yolks, tarragon (check eschalot).",
+  mise:"Condiment selection: hot english, dijon, wholegrain, bearnaise. Serves 4. Must be coursed on its own.",
+  flags:{ dairy:'mod', egg:'mod', alliums:'mod', alcohol:'mod' } },
+
+/* 35 */ { id:35, sec:"Steaks From the Grill", name:"200g Brooklyn Valley MS3+ Tenderloin (Pepper Sauce)",
+  desc:"Brooklyn Valley Tenderloin with a pepper sauce.",
+  process:"Premium MBS 3+ free range grass fed beef exclusive to Haverick Meats, sourced from the Gippsland Region.",
+  allergies:"Sauce has dairy AND gluten – can be on the side. Sauce contains alliums.",
+  mise:"Steak knife to be set by waiter.",
+  flags:{ dairy:'mod', gluten:'mod', alliums:'mod' } },
+
+/* 36 */ { id:36, sec:"Steaks From the Grill", name:"250g O'Connor Scotch Fillet",
+  desc:"O'Connor scotch fillet [state cook temperature].",
+  process:"Black Opal wagyu cattle raised on Tasmanian and Victorian pastures. Grass fed and finished on grain (minimum 380 days on grain).",
+  allergies:"Red wine jus can be on the side.",
+  mise:"Steak knife to be set by waiter.",
+  flags:{ alcohol:'mod' } },
+
+/* 37 */ { id:37, sec:"Steaks From the Grill", name:"450g O'Connor Bone in Sirloin",
+  desc:"Kidman bone-in sirloin [state cook temperature].",
+  process:"Bone-in New York strip (bone-in sirloin / porterhouse). More dry-aged than the other steak options. Kidman beef raised on QLD and NT land.",
+  allergies:"na.",
+  mise:"Steak knife to be set by waiter.",
+  flags:{} },
+
+/* 38 */ { id:38, sec:"Steaks From the Grill", name:"750g Smoked Southern Ranges Short Rib",
+  desc:"Southern Ranges short rib, smoked, with salsa verde.",
+  process:"Short rib salted and cooked 15 hours overnight at 77C, cooled, portioned and vac-packed with beef jus; water bathed till hot and finished on coals. Served with a green chilli salsa (green chillies, dill, parsley, basil, tarragon, olive oil) and red wine jus. Fully cooked through (suitable for pregnant). Southern Ranges is NSW.",
+  allergies:"Chilli. Alliums – can be omitted by removing red wine jus. Rib is vac-sealed with jus containing small amounts of alliums and alcohol. Alcohol (red wine in jus) – leave off for no alcohol.",
+  mise:"—",
+  flags:{ alliums:'mod', alcohol:'mod' } },
+
+/* 39 */ { id:39, sec:"Steaks From the Grill", name:"650g Riverine MB2 Ribeye",
+  desc:"Riverine Ribeye [state cook temperature]. Cannot be cooked half-half due to thickness and multiple muscle groups.",
+  process:"—",
+  allergies:"na.",
+  mise:"Steak knife to be set by waiter.",
+  flags:{} },
+
+/* 40 */ { id:40, sec:"Steaks From the Grill", name:"F1 Westholme Wagyu T-Bone",
+  desc:"800g F1 Wagyu T-Bone [state cook temperature].",
+  process:"T-Bone (Fiorentina / Bistecca): sirloin on one side, t-bone in the middle, tenderloin on the other. F1 refers to genetics (Angus and Wagyu 50/50). Served with cafe de paris butter on top. Cannot be cooked half-half due to the shape of the cut.",
+  allergies:"Dairy – Cafe de Paris butter can be left off.",
+  mise:"Steak knife to be set by waiter.",
+  flags:{ dairy:'mod' } },
+
+/* 41 */ { id:41, sec:"Sides", name:"Grilled Broccolini, Sheeps Milk Feta, Hazelnuts",
+  desc:"Grilled broccolini, with sheep's milk feta and hazelnut crumb.",
+  process:"Sherry vin, olive oil, hazelnuts, salt.",
+  allergies:"Nuts (omit the hazelnuts). Dairy (omit the feta).",
+  mise:"Fork and spoon.",
+  flags:{ nuts:'mod', dairy:'mod' } },
+
+/* 42 */ { id:42, sec:"Sides", name:"Green Leaf Salad, Chardonnay Vinaigrette",
+  desc:"Green leaf salad with a Chardonnay dressing.",
+  process:"Mixed leaves of red and green baby cos. Dressing of white balsamic, olive oil, salt, sugar.",
+  allergies:"—",
+  mise:"Fork and spoon / or salad tongs.",
+  flags:{} },
+
+/* 43 */ { id:43, sec:"Sides", name:"Baked Andean Potato, Mustard, Pancetta, Sour Cream",
+  desc:"Baked Andean potato with mustard, pancetta and sour cream.",
+  process:"Potatoes salt-baked, scooped out, mixed with pancetta, butter, cream, Dijon. Potato skin deep fried and filled with the pancetta mix. Topped with soft herbs.",
+  allergies:"Pork, nightshades, dairy. Traces of gluten as fried in the same oils – check for coeliac. Uses gluten free soy. Cannot be modified for pork or dairy.",
+  mise:"Fork + Spoon.",
+  flags:{ halal:'yes', nightshade:'yes', dairy:'yes', gluten:'yes' } },
+
+/* 44 */ { id:44, sec:"Sides", name:"Fries, Barrack Seasoning",
+  desc:"Hand-cut fries with barrack seasoning.",
+  process:"Barrack seasoning is nutritional yeast, onion powder, garlic powder, salt, sugar. Side aioli.",
+  allergies:"Seasoning cannot be allium free (unless you leave the seasoning off). Cannot be sugar free. Side of Aioli can be substituted for a different sauce. Fried in the same oils as gluten – check for coeliac. Seasoning can be left off.",
+  mise:"None.",
+  flags:{ alliums:'mod', gluten:'mod', egg:'mod' } },
+
+/* 45 */ { id:45, sec:"Dessert", name:"Red Mill Rum Baba, Vanilla Chantilly Cream",
+  desc:"Served tableside: red mill rum baba, with a drizzle of red mill rum, served with chantilly cream.",
+  process:"Set a tray stand in front of the table; rum baba cake whole on a tray with cake knives, rum carafe, serving teaspoon and chalice of cream. Slice the baba, give a spiel about the red mill rum (distillery in Rozelle, made especially for 11B). Pour a small amount of rum (15–30ml); guests serve cream themselves.",
+  allergies:"Alcohol, cannot be removed.",
+  mise:"Tray stand, cake serving knife + spade, teaspoon for cream, plate for serving.",
+  flags:{ alcohol:'yes', gluten:'yes', dairy:'yes' } },
+
+/* 46 */ { id:46, sec:"Dessert", name:"Poached Rhubarb, Vanilla Custard, Hibiscus Granita",
+  desc:"Vanilla custard topped with poached rhubarb and hibiscus granita.",
+  process:"Base of vanilla custard, topped with poached rhubarb, brown butter crumble, rhubarb sorbet (contains reduced white wine), shiso and rosella granita, and rhubarb gel. Topped with shiso leaf.",
+  allergies:"Halal / Alcohol – remove the sorbet (add more granita). Dairy free – swap for coconut cream instead of vanilla custard. Gluten free – swap for vegan crumble. Can be vegan. Nut free.",
+  mise:"—",
+  flags:{ alcohol:'mod', dairy:'mod', gluten:'mod', halal:'mod' } },
+
+/* 47 */ { id:47, sec:"Dessert", name:"Red Velvet Cake, Blackberry Compote, Creme Fraiche",
+  desc:"Red velvet cake with blackberry sauce and creme fraiche.",
+  process:"Vanilla sponge layered with lemon butter cream, finished with a glaze of raspberry and blackberry puree. Bottom layer is a hazelnut feuilletine. Served as a slice with creme fraiche and blackberry compote on the side.",
+  allergies:"Cannot be nut free. Cannot be gluten free. Cannot be dairy free. Cannot be vegan.",
+  mise:"Waiter to set up share plates and cutlery.",
+  flags:{ nuts:'yes', gluten:'yes', dairy:'yes', egg:'yes' } },
+
+/* 48 */ { id:48, sec:"Dessert", name:"Ginger Glazed Key Lime Pie, Coconut Curd, Finger Lime",
+  desc:"Key lime pie with coconut curd and finger lime.",
+  process:"A sweet tart shell flavoured with ginger and cinnamon, filled with condensed milk, lime juice, sugar and eggs, baked at 120°C until set and slightly wobbly. Topped with a ginger 'jelly' set with agar, piped with coconut whip (coconut cream, lime zest, sugar, vanilla) and fresh finger limes.",
+  allergies:"Allergens: eggs, gluten, dairy and nuts (almonds). Is halal but cannot be substituted for other dietaries.",
+  mise:"Waiter to set up fork and spoon if not sharing.",
+  flags:{ egg:'yes', gluten:'yes', dairy:'yes', nuts:'yes' } },
+
+/* 49 */ { id:49, sec:"Cheese", name:"Cheese Selection",
+  desc:"Pyengana Cheddar (Cow's Milk, St Helens TAS); Riverine Blue (Buffalo Milk, Gippsland VIC); Le Dauphin double-cream cow's milk, Bourgogne France (currently off menu, substituted with Will Studd Camembert from Normandy).",
+  process:"All garnish: Lavosh, muscatel grapes, pear chutney.",
+  allergies:"Lavosh – contains gluten.",
+  mise:"Cheese knife to be set up by waiter.",
+  flags:{ dairy:'yes', gluten:'mod' } },
+
+/* 50 */ { id:50, sec:"Bar Menu", name:"2GR Wagyu Bresaola",
+  desc:"Wagyu Bresaola.",
+  process:"50g sliced thin Wagyu Bresaola.",
+  allergies:"na. (Cured wagyu – not halal.)",
+  mise:"Fork, spoon.",
+  flags:{ halal:'yes' } },
+
+/* 51 */ { id:51, sec:"Bar Menu", name:"Swordfish Sandwich, Iceberg, Cheese, Oyster Tartare",
+  desc:"Swordfish sandwich.",
+  process:"Crumbed swordfish (panko), hot dog bun, burger cheese (American) slice, pickled jalapeno and oyster tartare.",
+  allergies:"Cornichon, eschalot, capers, chives (for the mayo). Swordfish (fish), oyster tartare (shellfish), bun & panko (gluten), cheese (dairy).",
+  mise:"—",
+  flags:{ fish:'yes', shellfish:'yes', gluten:'yes', dairy:'yes', egg:'yes', alliums:'yes', nightshade:'yes' } },
+
+/* 52 */ { id:52, sec:"Bar Menu", name:"The Barrack Dog, Milk Bun, Mustard, Escabeche",
+  desc:"The barrack dog with escabeche.",
+  process:"Seafood sausage (from ALC), hot dog bun, pickled veg (celery, carrot, onion and fennel), tabasco ketchup, red yuzu kosho, American mustard, burger cheese on top.",
+  allergies:"Seafood sausage (seafood), bun (gluten), cheese (dairy), onion (alliums), tabasco ketchup & yuzu kosho (nightshade/chilli).",
+  mise:"—",
+  flags:{ fish:'yes', gluten:'yes', dairy:'yes', alliums:'yes', nightshade:'yes' } },
+
+/* 53 */ { id:53, sec:"Bar Menu", name:"Wagyu Burger, Lettuce, Onion, Comte, Pickles",
+  desc:"Wagyu Burger.",
+  process:"Burger bun, lettuce, onion, comte cheese, tomato, pickles.",
+  allergies:"Bun (gluten), comte (dairy), onion (alliums), tomato/pickles (nightshade).",
+  mise:"—",
+  flags:{ gluten:'yes', dairy:'yes', alliums:'yes', nightshade:'yes' } },
+
+/* 54 */ { id:54, sec:"Bar Menu", name:"250g Westholme Rump Cap",
+  desc:"Westholme rump cap, served [cooking temp, e.g. Med Rare].",
+  process:"Westholme beef from the northern ranges of Australia (mid-QLD up to Darwin). Roughly 16 million acres of rangeland stewarded, guided by the natural ecosystem of northern Australia.",
+  allergies:"na.",
+  mise:"Steak knife to be set by waiter.",
+  flags:{} },
+];
+
+/* allergen / restriction profiles */
+const ALLERGENS = [
+  { key:'shellfish',  label:'Shellfish',     icon:'🦐' },
+  { key:'fish',       label:'Fish/Seafood',  icon:'🐟' },
+  { key:'gluten',     label:'Gluten',        icon:'🌾' },
+  { key:'dairy',      label:'Dairy',         icon:'🥛' },
+  { key:'egg',        label:'Egg',           icon:'🥚' },
+  { key:'nuts',       label:'Nuts',          icon:'🥜' },
+  { key:'sesame',     label:'Sesame',        icon:'⚪' },
+  { key:'alliums',    label:'Alliums',       icon:'🧄' },
+  { key:'nightshade', label:'Nightshade',    icon:'🍅' },
+  { key:'halal',      label:'Not Halal',     icon:'☪️' },
+  { key:'alcohol',    label:'Alcohol',       icon:'🍷' },
+];
+const ALLERGEN_LABEL = Object.fromEntries(ALLERGENS.map(a=>[a.key,a.label]));
+
+/* guest restriction profiles for the Allergy Guard game */
+const PROFILES = [
+  { name:'Shellfish Allergy',  keys:['shellfish'],          icon:'🦐' },
+  { name:'Seafood Allergy',    keys:['shellfish','fish'],   icon:'🐟' },
+  { name:'Coeliac / Gluten',   keys:['gluten'],             icon:'🌾' },
+  { name:'Dairy Free',         keys:['dairy'],              icon:'🥛' },
+  { name:'Egg Allergy',        keys:['egg'],                icon:'🥚' },
+  { name:'Nut Allergy',        keys:['nuts'],               icon:'🥜' },
+  { name:'Sesame Allergy',     keys:['sesame'],             icon:'⚪' },
+  { name:'Allium Free',        keys:['alliums'],            icon:'🧄' },
+  { name:'Nightshade Allergy', keys:['nightshade'],         icon:'🍅' },
+  { name:'Halal',              keys:['halal','alcohol'],    icon:'☪️' },
+  { name:'No Alcohol',         keys:['alcohol'],            icon:'🍷' },
+];
+const GUEST_NAMES = ['Mr Tan','Ms Okafor','The Lee party','Table 12','Dr Rossi','Ms Nguyen','The Patel family','Mr Johansson','Table 7','Ms Garcia','The Müller party','Mr Abebe'];
+
+/* color helpers (static classes so Tailwind CDN picks them up at runtime is fine) */
+function secChip(sec){
+  const c = SECTIONS[sec]?.color || 'slate';
+  const map = {
+    amber:'bg-amber-100 text-amber-800', orange:'bg-orange-100 text-orange-800',
+    lime:'bg-lime-100 text-lime-800', yellow:'bg-yellow-100 text-yellow-800',
+    green:'bg-green-100 text-green-800', rose:'bg-rose-100 text-rose-800',
+    purple:'bg-purple-100 text-purple-800', red:'bg-red-100 text-red-800',
+    teal:'bg-teal-100 text-teal-800', pink:'bg-pink-100 text-pink-800',
+    indigo:'bg-indigo-100 text-indigo-800', cyan:'bg-cyan-100 text-cyan-800',
+    slate:'bg-slate-100 text-slate-800',
+  };
+  return map[c];
+}
+function secBar(sec){
+  const c = SECTIONS[sec]?.color || 'slate';
+  const map = { amber:'bg-amber-500',orange:'bg-orange-500',lime:'bg-lime-500',yellow:'bg-yellow-500',green:'bg-green-500',rose:'bg-rose-500',purple:'bg-purple-500',red:'bg-red-500',teal:'bg-teal-500',pink:'bg-pink-500',indigo:'bg-indigo-500',cyan:'bg-cyan-500',slate:'bg-slate-500' };
+  return map[c];
+}
+
+/* =========================================================================
+   STATE  (persisted to localStorage)
+   ========================================================================= */
+const SAVE_KEY = 'eb-trainer-v1';
+const state = loadState();
+function defaultState(){
+  return { xp:0, streak:0, bestStreak:0, known:{}, // known: id->true
+    stats:{ flashSeen:0, quizCorrect:0, quizTotal:0, guardCorrect:0, guardTotal:0 },
+    muted:false };
+}
+function loadState(){
+  try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if(s && typeof s==='object') return Object.assign(defaultState(), s, {stats:Object.assign(defaultState().stats, s.stats||{})}); }
+  catch(e){}
+  return defaultState();
+}
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){} }
+
+/* leveling: each level needs level*100 XP cumulative-ish — simple curve */
+function levelInfo(xp){
+  let lvl=1, need=100, acc=0;
+  while(xp >= acc+need){ acc+=need; lvl++; need=100+(lvl-1)*40; }
+  return { lvl, into: xp-acc, need, pct: Math.round(((xp-acc)/need)*100) };
+}
+function addXP(n){
+  state.xp = Math.max(0, state.xp + n);
+  save(); renderHUD();
+}
+function bumpStreak(ok){
+  if(ok){ state.streak++; state.bestStreak=Math.max(state.bestStreak,state.streak); }
+  else { state.streak=0; }
+  save(); renderHUD();
+}
+
+/* =========================================================================
+   SOUND (WebAudio blips) + visual flash
+   ========================================================================= */
+let actx=null;
+function beep(type){
+  if(state.muted) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const seq = type==='good' ? [[660,0],[880,0.09]] : type==='bad' ? [[200,0],[150,0.12]] : [[520,0]];
+    seq.forEach(([f,t])=>{
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.type = type==='bad' ? 'sawtooth':'sine'; o.frequency.value=f;
+      o.connect(g); g.connect(actx.destination);
+      const start=actx.currentTime+t;
+      g.gain.setValueAtTime(0.0001,start);
+      g.gain.exponentialRampToValueAtTime(0.18,start+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,start+0.18);
+      o.start(start); o.stop(start+0.2);
+    });
+  }catch(e){}
+}
+function flash(kind){
+  const el=document.getElementById('flash');
+  el.className = 'pointer-events-none fixed inset-0 z-50 animate-flash ' + (kind==='good'?'bg-emerald-400':'bg-rose-500');
+  el.style.display='block';
+  setTimeout(()=>{ el.style.display='none'; el.className='pointer-events-none fixed inset-0 z-50 hidden'; }, 480);
+}
+function feedback(ok){ beep(ok?'good':'bad'); flash(ok?'good':'bad'); }
+
+/* =========================================================================
+   HUD
+   ========================================================================= */
+function renderHUD(){
+  const li = levelInfo(state.xp);
+  document.getElementById('hud-xp').textContent = state.xp;
+  document.getElementById('hud-streak').textContent = state.streak;
+  document.getElementById('hud-level').textContent = 'Lv '+li.lvl;
+  document.getElementById('hud-bar').style.width = li.pct+'%';
+  document.getElementById('hud-next').textContent = li.into+'/'+li.need;
+  document.getElementById('btn-mute').textContent = state.muted ? '🔇' : '🔊';
+}
+
+/* =========================================================================
+   TABS
+   ========================================================================= */
+const TAB_RENDER = {};
+function showTab(name){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    const on = b.dataset.tab===name;
+    b.classList.toggle('border-emerald-500', on);
+    b.classList.toggle('text-slate-900', on);
+    b.classList.toggle('text-slate-500', !on);
+    b.classList.toggle('border-transparent', !on);
+  });
+  if(TAB_RENDER[name]) TAB_RENDER[name]();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.querySelectorAll('.tab-btn').forEach(b=> b.addEventListener('click', ()=>showTab(b.dataset.tab)));
+document.getElementById('btn-mute').addEventListener('click', ()=>{ state.muted=!state.muted; save(); renderHUD(); });
+
+/* =========================================================================
+   HOME / DASHBOARD
+   ========================================================================= */
+TAB_RENDER.home = function(){
+  const li = levelInfo(state.xp);
+  const total = DISHES.length;
+  const known = Object.keys(state.known).length;
+  const acc = state.stats.quizTotal ? Math.round(100*state.stats.quizCorrect/state.stats.quizTotal) : 0;
+  const gacc = state.stats.guardTotal ? Math.round(100*state.stats.guardCorrect/state.stats.guardTotal) : 0;
+  const el = document.getElementById('tab-home');
+  el.innerHTML = `
+    <div class="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 text-white p-5 shadow-lg">
+      <p class="text-sm text-slate-300">Welcome back — train your floor knowledge</p>
+      <div class="flex items-end gap-4 mt-2">
+        <div><div class="text-4xl font-black">Lv ${li.lvl}</div><div class="text-xs text-slate-300">${state.xp} XP total</div></div>
+        <div class="ml-auto text-right">
+          <div class="text-2xl font-bold">🔥 ${state.streak}</div>
+          <div class="text-xs text-slate-300">best ${state.bestStreak}</div>
+        </div>
+      </div>
+      <div class="mt-3 h-2.5 rounded-full bg-white/20 overflow-hidden">
+        <div class="h-full bg-emerald-400" style="width:${li.pct}%"></div>
+      </div>
+      <div class="text-[11px] text-slate-300 mt-1">${li.into}/${li.need} XP to next level</div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      ${statCard('🃏','Dishes mastered', known+' / '+total, 'flash')}
+      ${statCard('❓','Quiz accuracy', acc+'%', 'quiz')}
+      ${statCard('🛡️','Allergy accuracy', gacc+'%', 'guard')}
+      ${statCard('📖','Menu items', total, 'browser')}
+    </div>
+
+    <h2 class="font-bold text-slate-700 mt-2">Choose a mode</h2>
+    <div class="space-y-3">
+      ${modeCard('flash','🃏','Flashcards','Study every dish — table description, process, allergies & mise en place. Flip, learn, mark as mastered.','emerald')}
+      ${modeCard('quiz','❓','Multiple Choice Quiz','Test yourself on table descriptions, ingredients and allergy rules with instant feedback.','sky')}
+      ${modeCard('guard','🛡️','Allergy Safe Guard','A guest sits down with an allergy. Approve or reject each dish before it leaves the pass.','rose')}
+      ${modeCard('browser','📖','Menu Reference','Searchable dictionary of the full notes, grouped by section.','violet')}
+    </div>
+
+    <div class="text-center pt-2">
+      <button id="reset-btn" class="text-xs text-slate-400 underline">Reset progress</button>
+    </div>`;
+  el.querySelectorAll('[data-go]').forEach(c=> c.addEventListener('click', ()=>showTab(c.dataset.go)));
+  el.querySelector('#reset-btn').addEventListener('click', ()=>{
+    if(confirm('Reset all XP, streaks and mastered dishes?')){ Object.assign(state, defaultState()); save(); renderHUD(); showTab('home'); }
+  });
+};
+function statCard(icon,label,val,go){
+  return `<button data-go="${go}" class="text-left rounded-xl bg-white p-3 shadow-sm border border-slate-100 active:scale-95 transition">
+    <div class="text-xl">${icon}</div>
+    <div class="text-2xl font-extrabold text-slate-900 leading-tight">${val}</div>
+    <div class="text-xs text-slate-500">${label}</div></button>`;
+}
+function modeCard(go,icon,title,desc,color){
+  return `<button data-go="${go}" class="w-full text-left rounded-2xl bg-white p-4 shadow-sm border border-slate-100 flex gap-4 items-start active:scale-[.99] transition hover:border-${color}-300">
+    <div class="text-3xl">${icon}</div>
+    <div class="min-w-0"><div class="font-bold text-slate-900">${title}</div><div class="text-sm text-slate-500">${desc}</div></div>
+    <div class="ml-auto self-center text-slate-300 text-xl">›</div></button>`;
+}
+
+/* =========================================================================
+   FLASHCARDS
+   ========================================================================= */
+const flashState = { order:[], idx:0, filter:'all' };
+function buildFlashOrder(){
+  let list = DISHES.map(d=>d.id);
+  if(flashState.filter!=='all') list = DISHES.filter(d=>d.sec===flashState.filter).map(d=>d.id);
+  flashState.order = list; flashState.idx = 0;
+}
+TAB_RENDER.flash = function(){
+  if(!flashState.order.length) buildFlashOrder();
+  const el=document.getElementById('tab-flash');
+  const secs = ['all', ...Object.keys(SECTIONS)];
+  el.innerHTML = `
+    <div class="flex items-center gap-2 flex-wrap">
+      <select id="flash-filter" class="text-sm rounded-lg border-slate-200 border px-2 py-1.5 bg-white">
+        ${secs.map(s=>`<option value="${s}" ${s===flashState.filter?'selected':''}>${s==='all'?'All sections':s}</option>`).join('')}
+      </select>
+      <button id="flash-shuffle" class="text-sm px-3 py-1.5 rounded-lg bg-slate-200 font-semibold">🔀 Shuffle</button>
+      <span id="flash-count" class="ml-auto text-sm text-slate-500 tabular-nums"></span>
+    </div>
+    <div id="flash-card-wrap" class="mt-4"></div>
+    <div class="flex items-center gap-2 mt-4">
+      <button id="flash-prev" class="flex-1 py-3 rounded-xl bg-white border border-slate-200 font-semibold active:scale-95">‹ Prev</button>
+      <button id="flash-known" class="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold active:scale-95">✓ Mastered</button>
+      <button id="flash-next" class="flex-1 py-3 rounded-xl bg-white border border-slate-200 font-semibold active:scale-95">Next ›</button>
+    </div>`;
+  el.querySelector('#flash-filter').addEventListener('change', e=>{ flashState.filter=e.target.value; buildFlashOrder(); TAB_RENDER.flash(); });
+  el.querySelector('#flash-shuffle').addEventListener('click', ()=>{ shuffle(flashState.order); flashState.idx=0; renderFlashCard(); });
+  el.querySelector('#flash-prev').addEventListener('click', ()=>{ flashState.idx=(flashState.idx-1+flashState.order.length)%flashState.order.length; renderFlashCard(); });
+  el.querySelector('#flash-next').addEventListener('click', ()=>{ flashState.idx=(flashState.idx+1)%flashState.order.length; renderFlashCard(); });
+  el.querySelector('#flash-known').addEventListener('click', ()=>{
+    const d = currentFlash(); if(!d) return;
+    if(!state.known[d.id]){ state.known[d.id]=true; addXP(5); }
+    save(); flashState.idx=(flashState.idx+1)%flashState.order.length; renderFlashCard();
+  });
+  renderFlashCard();
+};
+function currentFlash(){ const id=flashState.order[flashState.idx]; return DISHES.find(d=>d.id===id); }
+function renderFlashCard(){
+  const d=currentFlash(); if(!d) return;
+  document.getElementById('flash-count').textContent = (flashState.idx+1)+' / '+flashState.order.length;
+  const flagsHtml = flagPills(d);
+  const wrap=document.getElementById('flash-card-wrap');
+  wrap.innerHTML = `
+    <div class="card-3d animate-pop">
+      <div id="card-inner" class="card-inner relative w-full" style="min-height:22rem">
+        <!-- FRONT -->
+        <div class="card-face absolute inset-0 rounded-2xl bg-white shadow-lg border border-slate-100 p-6 flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full ${secChip(d.sec)}">${SECTIONS[d.sec].emoji} ${d.sec}</span>
+            ${state.known[d.id]?'<span class="text-xs font-bold text-emerald-600 ml-auto">✓ Mastered</span>':''}
+          </div>
+          <div class="flex-1 grid place-items-center text-center px-2">
+            <div>
+              <div class="text-2xl font-extrabold text-slate-900 leading-snug">${d.name}</div>
+              <div class="mt-3 text-sm text-slate-400">Tap to reveal the notes</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1 justify-center">${flagsHtml}</div>
+        </div>
+        <!-- BACK -->
+        <div class="card-face card-back absolute inset-0 rounded-2xl bg-white shadow-lg border border-slate-100 p-5 overflow-y-auto">
+          <div class="text-lg font-extrabold text-slate-900 mb-2">${d.name}</div>
+          ${field('Table description', d.desc)}
+          ${field('Process', d.process)}
+          ${field('Allergies & replacements', d.allergies, 'rose')}
+          ${field('Mise en place', d.mise, 'slate')}
+          <div class="flex flex-wrap gap-1 mt-3">${flagsHtml}</div>
+        </div>
+      </div>
+    </div>`;
+  const inner = wrap.querySelector('#card-inner');
+  inner.addEventListener('click', ()=>{
+    inner.classList.toggle('flipped');
+    if(inner.classList.contains('flipped')){ beep('flip'); state.stats.flashSeen++; save(); }
+  });
+}
+function field(label, val, color){
+  if(!val || val==='—') return '';
+  const c = color==='rose' ? 'text-rose-600' : color==='slate' ? 'text-slate-400' : 'text-emerald-600';
+  return `<div class="mb-2"><div class="text-[11px] font-bold uppercase tracking-wide ${c}">${label}</div><div class="text-sm text-slate-700 leading-snug">${val}</div></div>`;
+}
+function flagPills(d){
+  const out=[];
+  for(const a of ALLERGENS){
+    const v = d.flags[a.key];
+    if(!v) continue;
+    const cls = v==='yes' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700';
+    const suffix = v==='mod' ? ' · can modify' : '';
+    out.push(`<span class="text-[11px] px-2 py-0.5 rounded-full ${cls}">${a.icon} ${a.label}${suffix}</span>`);
+  }
+  if(!out.length) out.push('<span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">✓ no flagged allergens</span>');
+  return out.join('');
+}
+
+/* =========================================================================
+   QUIZ  (Table Descriptions / Ingredients / Allergies)
+   ========================================================================= */
+const quizState = { q:null, answered:false, sessionCorrect:0, sessionTotal:0 };
+TAB_RENDER.quiz = function(){
+  const el=document.getElementById('tab-quiz');
+  el.innerHTML = `
+    <div class="flex items-center gap-2">
+      <div class="text-sm text-slate-500">Session: <span id="q-score" class="font-bold text-slate-800"></span></div>
+      <button id="q-skip" class="ml-auto text-sm px-3 py-1.5 rounded-lg bg-slate-200 font-semibold">Skip ↻</button>
+    </div>
+    <div id="q-body" class="mt-3"></div>`;
+  el.querySelector('#q-skip').addEventListener('click', ()=> nextQuiz());
+  if(!quizState.q) nextQuiz(); else renderQuiz();
+  updateQScore();
+};
+function updateQScore(){ const e=document.getElementById('q-score'); if(e) e.textContent = quizState.sessionCorrect+' / '+quizState.sessionTotal; }
+function nextQuiz(){ quizState.q = makeQuestion(); quizState.answered=false; renderQuiz(); }
+function makeQuestion(){
+  const types=['desc','ingredient','allergy-flag','safe'];
+  const type = types[Math.floor(Math.random()*types.length)];
+  if(type==='desc'){
+    const d = rand(DISHES);
+    const opts = pickDistinct(DISHES, 3, x=>x.id!==d.id && x.sec? true:true).map(x=>x.name);
+    opts.push(d.name); shuffle(opts);
+    return { type, prompt:`Which dish matches this table-side description?`, sub:`“${d.desc}”`, options:opts, answer:d.name, tag:'Table Description', explain:`${d.name} — ${d.sec}.` };
+  }
+  if(type==='ingredient'){
+    const d = rand(DISHES.filter(x=>x.process && x.process.length>40));
+    const snippet = d.process.length>180 ? d.process.slice(0,180)+'…' : d.process;
+    const opts = pickDistinct(DISHES, 3, x=>x.id!==d.id).map(x=>x.name);
+    opts.push(d.name); shuffle(opts);
+    return { type, prompt:`Which dish is prepared like this?`, sub:`“${snippet}”`, options:opts, answer:d.name, tag:'Ingredients / Process', explain:`${d.name}.` };
+  }
+  if(type==='allergy-flag'){
+    // dish that contains at least one allergen ('yes' or 'mod')
+    const cands = DISHES.filter(x=>Object.values(x.flags).some(v=>v==='yes'));
+    const d = rand(cands);
+    const present = Object.keys(d.flags).filter(k=>d.flags[k]==='yes');
+    const correctKey = rand(present);
+    const absent = ALLERGENS.map(a=>a.key).filter(k=>!d.flags[k]);
+    const distract = pickDistinct(absent, 3, ()=>true);
+    const opts = distract.map(k=>ALLERGEN_LABEL[k]); opts.push(ALLERGEN_LABEL[correctKey]); shuffle(opts);
+    return { type, prompt:`A guest asks about “${d.name}”. Which allergen must you flag (cannot be removed)?`, sub:'', options:opts, answer:ALLERGEN_LABEL[correctKey], tag:'Allergies', explain:`${d.name}: ${d.allergies}` };
+  }
+  // safe-to-serve
+  const profile = rand(PROFILES);
+  const d = rand(DISHES);
+  const st = statusFor(d, profile.keys);
+  const map = { safe:'Safe to serve as is', mod:'Safe only with a modification', unsafe:'Cannot be served' };
+  const opts = ['Safe to serve as is','Safe only with a modification','Cannot be served']; shuffle(opts);
+  return { type:'safe', prompt:`Guest profile: ${profile.icon} ${profile.name}. Can you serve “${d.name}”?`, sub:'', options:opts, answer:map[st], tag:'Allergies', explain:`${d.name}: ${d.allergies}` };
+}
+function renderQuiz(){
+  const q=quizState.q, body=document.getElementById('q-body'); if(!q||!body) return;
+  body.innerHTML = `
+    <div class="rounded-2xl bg-white shadow-sm border border-slate-100 p-5 animate-pop">
+      <span class="text-[11px] font-bold uppercase tracking-wide text-sky-600">${q.tag}</span>
+      <h3 class="font-bold text-slate-900 mt-1 leading-snug">${q.prompt}</h3>
+      ${q.sub?`<p class="text-sm text-slate-500 italic mt-2 border-l-2 border-slate-200 pl-3">${q.sub}</p>`:''}
+      <div id="q-opts" class="mt-4 space-y-2"></div>
+      <div id="q-exp" class="mt-3 hidden text-sm rounded-xl p-3"></div>
+      <button id="q-cont" class="hidden mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-semibold">Continue ›</button>
+    </div>`;
+  const optsBox = body.querySelector('#q-opts');
+  q.options.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white font-medium active:scale-[.99] transition hover:border-sky-300';
+    b.textContent=opt;
+    b.addEventListener('click', ()=> answerQuiz(opt, b));
+    optsBox.appendChild(b);
+  });
+  body.querySelector('#q-cont').addEventListener('click', ()=>{ nextQuiz(); updateQScore(); });
+}
+function answerQuiz(opt, btn){
+  if(quizState.answered) return;
+  quizState.answered=true;
+  const q=quizState.q;
+  const ok = opt===q.answer;
+  quizState.sessionTotal++; state.stats.quizTotal++;
+  if(ok){ quizState.sessionCorrect++; state.stats.quizCorrect++; addXP(10); bumpStreak(true); }
+  else { bumpStreak(false); }
+  save(); feedback(ok);
+  document.querySelectorAll('#q-opts button').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===q.answer){ b.className='w-full text-left px-4 py-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-semibold'; }
+    else if(b===btn){ b.className='w-full text-left px-4 py-3 rounded-xl border-2 border-rose-500 bg-rose-50 font-semibold animate-shake'; }
+    else { b.className='w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-400'; }
+  });
+  const exp=document.getElementById('q-exp');
+  exp.className = 'mt-3 text-sm rounded-xl p-3 '+(ok?'bg-emerald-50 text-emerald-800':'bg-rose-50 text-rose-800');
+  exp.innerHTML = (ok?'✅ <b>Correct!</b> ':'❌ <b>Not quite.</b> Answer: <b>'+q.answer+'</b>. ')+'<br><span class="text-slate-600">'+q.explain+'</span>';
+  exp.classList.remove('hidden');
+  document.getElementById('q-cont').classList.remove('hidden');
+  updateQScore();
+}
+
+/* =========================================================================
+   ALLERGY SAFE GUARD
+   ========================================================================= */
+function statusFor(dish, keys){
+  let mod=false;
+  for(const k of keys){
+    if(dish.flags[k]==='yes') return 'unsafe';
+    if(dish.flags[k]==='mod') mod=true;
+  }
+  return mod ? 'mod' : 'safe';
+}
+const guardState = { round:null, answered:false };
+TAB_RENDER.guard = function(){
+  const el=document.getElementById('tab-guard');
+  el.innerHTML = `<div id="guard-body"></div>`;
+  if(!guardState.round) nextGuard(); else renderGuard();
+};
+function nextGuard(){
+  const profile = rand(PROFILES);
+  const guest = rand(GUEST_NAMES);
+  const dish = rand(DISHES);
+  const status = statusFor(dish, profile.keys);
+  guardState.round = { profile, guest, dish, status };
+  guardState.answered=false;
+  renderGuard();
+}
+function renderGuard(){
+  const r=guardState.round, body=document.getElementById('guard-body'); if(!r||!body) return;
+  const acc = state.stats.guardTotal ? Math.round(100*state.stats.guardCorrect/state.stats.guardTotal) : 0;
+  body.innerHTML = `
+    <div class="flex items-center text-sm text-slate-500">
+      <span>Correct calls: <b class="text-slate-800">${state.stats.guardCorrect}/${state.stats.guardTotal}</b> · ${acc}%</span>
+      <span class="ml-auto">🔥 ${state.streak}</span>
+    </div>
+
+    <div class="mt-3 rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 text-white p-4 shadow-lg animate-pop">
+      <div class="flex items-center gap-3">
+        <div class="text-3xl">${r.profile.icon}</div>
+        <div>
+          <div class="text-xs uppercase tracking-wide text-white/80">Guest at the pass</div>
+          <div class="font-bold text-lg leading-tight">${r.guest}</div>
+          <div class="text-sm">Allergy / requirement: <b>${r.profile.name}</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 rounded-2xl bg-white shadow-sm border border-slate-100 p-5">
+      <span class="text-xs font-bold px-2 py-0.5 rounded-full ${secChip(r.dish.sec)}">${SECTIONS[r.dish.sec].emoji} ${r.dish.sec}</span>
+      <h3 class="text-xl font-extrabold text-slate-900 mt-2 leading-snug">${r.dish.name}</h3>
+      <p class="text-sm text-slate-500 mt-1">${r.dish.desc}</p>
+      <div class="flex flex-wrap gap-1 mt-3">${flagPills(r.dish)}</div>
+    </div>
+
+    <div id="guard-actions" class="grid grid-cols-2 gap-3 mt-4">
+      <button data-act="approve" class="py-4 rounded-2xl bg-emerald-500 text-white font-bold text-lg active:scale-95 shadow">✓ Approve</button>
+      <button data-act="reject" class="py-4 rounded-2xl bg-rose-500 text-white font-bold text-lg active:scale-95 shadow">✕ Reject</button>
+    </div>
+    <div id="guard-result" class="mt-4 hidden"></div>`;
+
+  body.querySelectorAll('#guard-actions button').forEach(b=> b.addEventListener('click', ()=> answerGuard(b.dataset.act)));
+}
+function answerGuard(act){
+  if(guardState.answered) return;
+  guardState.answered=true;
+  const r=guardState.round;
+  // correct: unsafe => reject ; safe/mod => approve
+  const shouldApprove = r.status!=='unsafe';
+  const ok = (act==='approve') === shouldApprove;
+  state.stats.guardTotal++;
+  if(ok){ state.stats.guardCorrect++; addXP(12); bumpStreak(true); } else { bumpStreak(false); }
+  save(); feedback(ok);
+
+  // which keys triggered
+  const triggers = r.profile.keys.filter(k=>r.dish.flags[k]);
+  const trigTxt = triggers.map(k=>{
+    const v=r.dish.flags[k]; return ALLERGEN_LABEL[k]+(v==='mod'?' (modifiable)':' (cannot remove)');
+  }).join(', ') || 'none of the guest’s restrictions are present';
+
+  const verdict = r.status==='unsafe' ? 'REJECT — cannot be served safely'
+               : r.status==='mod' ? 'APPROVE with a modification'
+               : 'APPROVE — safe as is';
+
+  document.querySelectorAll('#guard-actions button').forEach(b=> b.disabled=true);
+  const res=document.getElementById('guard-result');
+  res.className = 'mt-4 rounded-2xl p-4 '+(ok?'bg-emerald-50 border border-emerald-200':'bg-rose-50 border border-rose-200');
+  res.innerHTML = `
+    <div class="font-bold ${ok?'text-emerald-700':'text-rose-700'}">${ok?'✅ Correct call!':'❌ Wrong call.'}</div>
+    <div class="text-sm mt-1 text-slate-700">Right answer: <b>${verdict}</b></div>
+    <div class="text-sm mt-2 text-slate-600"><b>Why:</b> ${trigTxt}.</div>
+    <div class="text-sm mt-2 text-slate-600 border-t border-slate-200/70 pt-2"><b>Notes:</b> ${r.dish.allergies}</div>
+    <button id="guard-next" class="mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-semibold">Next guest ›</button>`;
+  res.classList.remove('hidden');
+  res.querySelector('#guard-next').addEventListener('click', ()=> nextGuard());
+}
+
+/* =========================================================================
+   MENU BROWSER
+   ========================================================================= */
+const browserState = { q:'', sec:'all', open:{} };
+TAB_RENDER.browser = function(){
+  const el=document.getElementById('tab-browser');
+  const secs=['all', ...Object.keys(SECTIONS)];
+  el.innerHTML = `
+    <div class="sticky top-[140px] z-20 bg-slate-100 pb-2 -mx-1 px-1">
+      <input id="b-search" value="${browserState.q}" placeholder="Search dishes, ingredients, allergens…" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white shadow-sm" />
+      <div class="flex gap-1.5 mt-2 overflow-x-auto no-scrollbar">
+        ${secs.map(s=>`<button data-sec="${s}" class="bsec px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${s===browserState.sec?'bg-slate-900 text-white':'bg-white border border-slate-200 text-slate-600'}">${s==='all'?'All':SECTIONS[s].emoji+' '+s}</button>`).join('')}
+      </div>
+    </div>
+    <div id="b-list" class="mt-3 space-y-2"></div>`;
+  const search=el.querySelector('#b-search');
+  search.addEventListener('input', e=>{ browserState.q=e.target.value; renderBrowserList(); });
+  el.querySelectorAll('.bsec').forEach(b=> b.addEventListener('click', ()=>{ browserState.sec=b.dataset.sec; TAB_RENDER.browser(); }));
+  renderBrowserList();
+  // keep focus if typing
+  if(browserState.q){ const s=el.querySelector('#b-search'); s.focus(); s.setSelectionRange(s.value.length,s.value.length); }
+};
+function renderBrowserList(){
+  const list=document.getElementById('b-list'); if(!list) return;
+  const q=browserState.q.trim().toLowerCase();
+  let items=DISHES.filter(d=> browserState.sec==='all' || d.sec===browserState.sec);
+  if(q){
+    items=items.filter(d=>{
+      const hay=(d.name+' '+d.desc+' '+d.process+' '+d.allergies+' '+Object.keys(d.flags).map(k=>ALLERGEN_LABEL[k]).join(' ')).toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if(!items.length){ list.innerHTML='<div class="text-center text-slate-400 py-10">No dishes match “'+browserState.q+'”.</div>'; return; }
+  // group by section
+  const groups={};
+  items.forEach(d=> (groups[d.sec]=groups[d.sec]||[]).push(d));
+  list.innerHTML = Object.keys(SECTIONS).filter(s=>groups[s]).map(sec=>{
+    return `<div class="pt-1">
+      <div class="flex items-center gap-2 px-1 py-1">
+        <span class="w-1.5 h-5 rounded-full ${secBar(sec)}"></span>
+        <h3 class="font-bold text-slate-700">${SECTIONS[sec].emoji} ${sec}</h3>
+        <span class="text-xs text-slate-400">${groups[sec].length}</span>
+      </div>
+      ${groups[sec].map(d=>browserRow(d)).join('')}
+    </div>`;
+  }).join('');
+  list.querySelectorAll('[data-row]').forEach(r=> r.addEventListener('click', ()=>{
+    const id=+r.dataset.row; browserState.open[id]=!browserState.open[id]; renderBrowserList();
+  }));
+}
+function browserRow(d){
+  const open=browserState.open[d.id];
+  return `<div class="rounded-xl bg-white border border-slate-100 shadow-sm mb-2 overflow-hidden">
+    <button data-row="${d.id}" class="w-full text-left px-4 py-3 flex items-center gap-3">
+      <div class="min-w-0 flex-1">
+        <div class="font-semibold text-slate-900 leading-snug">${d.name}</div>
+        <div class="text-xs text-slate-500 truncate">${d.desc}</div>
+      </div>
+      <div class="text-slate-300 text-lg shrink-0">${open?'▲':'▼'}</div>
+    </button>
+    ${open?`<div class="px-4 pb-4 pt-1 border-t border-slate-100">
+      ${field('Table description', d.desc)}
+      ${field('Process', d.process)}
+      ${field('Allergies & replacements', d.allergies, 'rose')}
+      ${field('Mise en place', d.mise, 'slate')}
+      <div class="flex flex-wrap gap-1 mt-2">${flagPills(d)}</div>
+    </div>`:''}
+  </div>`;
+}
+
+/* =========================================================================
+   UTIL
+   ========================================================================= */
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pickDistinct(pool, n, pred){
+  const cand = shuffle(pool.filter(pred)).slice();
+  const out=[]; const seen=new Set();
+  for(const x of cand){ const key = (typeof x==='string')?x:x.name; if(seen.has(key)) continue; seen.add(key); out.push(x); if(out.length>=n) break; }
+  return out;
+}
+
+/* =========================================================================
+   BOOT
+   ========================================================================= */
+renderHUD();
+showTab('home');
+</script>
+</body>
+</html>

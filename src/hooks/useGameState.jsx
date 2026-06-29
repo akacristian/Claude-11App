@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
 import { beep } from '../lib/sound.js'
 import { AVATARS } from '../lib/utils.js'
+import { supabase, cloudEnabled, pullProgress, pushProgress } from '../lib/supabase.js'
 
 const SAVE_KEY = 'eb-trainer-v2'
 const LEGACY_KEY = 'eb-trainer-v1'
@@ -64,6 +65,22 @@ function loadStore() {
   return { activeId: null, users: [] }
 }
 
+// Normalize a whole store (e.g. one pulled from the cloud) into a valid shape.
+function normalizeStore(raw) {
+  if (!raw || !Array.isArray(raw.users)) return null
+  const users = raw.users
+    .filter((u) => u && u.id)
+    .map((u) => ({
+      id: u.id,
+      name: u.name || 'Player',
+      avatar: u.avatar || AVATARS[0],
+      state: normalizeState(u.state),
+    }))
+  if (!users.length) return null
+  const activeId = users.some((u) => u.id === raw.activeId) ? raw.activeId : users[0].id
+  return { activeId, users }
+}
+
 const GameContext = createContext(null)
 
 export function GameProvider({ children }) {
@@ -78,6 +95,85 @@ export function GameProvider({ children }) {
       /* ignore */
     }
   }, [store])
+
+  // ---- cloud sync (optional; only active when Supabase is configured) ----
+  const [session, setSession] = useState(null)
+  const [syncState, setSyncState] = useState('idle') // 'idle' | 'syncing' | 'synced' | 'error'
+  const storeRef = useRef(store)
+  storeRef.current = store
+  // True while we're applying a store pulled from the cloud, so the debounced
+  // push effect doesn't immediately echo it back up.
+  const applyingRemote = useRef(false)
+
+  // Track the auth session.
+  useEffect(() => {
+    if (!supabase) return
+    let active = true
+    supabase.auth.getSession().then(({ data }) => {
+      if (active) setSession(data.session ?? null)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s ?? null)
+    })
+    return () => {
+      active = false
+      sub.subscription.unsubscribe()
+    }
+  }, [])
+
+  // On sign-in: pull the cloud save (cloud wins) or seed it from local if empty.
+  const userId = session?.user?.id ?? null
+  useEffect(() => {
+    if (!supabase || !userId) return
+    let cancelled = false
+    setSyncState('syncing')
+    ;(async () => {
+      const remote = await pullProgress(userId)
+      if (cancelled) return
+      const normalized = normalizeStore(remote)
+      if (normalized) {
+        applyingRemote.current = true
+        setStore(normalized)
+      } else {
+        // No cloud save yet — push whatever this device has.
+        await pushProgress(userId, storeRef.current)
+      }
+      if (!cancelled) setSyncState('synced')
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [userId])
+
+  // Debounced push of local changes to the cloud while signed in.
+  useEffect(() => {
+    if (!supabase || !userId) return
+    if (applyingRemote.current) {
+      applyingRemote.current = false
+      return
+    }
+    setSyncState('syncing')
+    const t = setTimeout(async () => {
+      const ok = await pushProgress(userId, storeRef.current)
+      setSyncState(ok ? 'synced' : 'error')
+    }, 800)
+    return () => clearTimeout(t)
+  }, [store, userId])
+
+  const signIn = useCallback(async (email) => {
+    if (!supabase) return { error: 'Cloud sync is not configured.' }
+    const { error } = await supabase.auth.signInWithOtp({
+      email: (email || '').trim(),
+      options: { emailRedirectTo: window.location.origin + window.location.pathname },
+    })
+    return { error: error?.message ?? null }
+  }, [])
+
+  const signOut = useCallback(async () => {
+    if (!supabase) return
+    await supabase.auth.signOut()
+    setSyncState('idle')
+  }, [])
 
   // Update only the active profile's game state. `fn` maps old state -> new state.
   const updateActive = useCallback((fn) => {
@@ -238,6 +334,15 @@ export function GameProvider({ children }) {
     switchUser,
     renameUser,
     deleteUser,
+    // cloud sync
+    cloud: {
+      enabled: cloudEnabled,
+      email: session?.user?.email ?? null,
+      signedIn: !!session,
+      status: syncState,
+    },
+    signIn,
+    signOut,
     // gameplay
     addXP,
     bumpStreak,

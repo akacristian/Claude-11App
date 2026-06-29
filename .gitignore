@@ -3,3 +3,8 @@ dist/
 .DS_Store
 *.local
 .vite/
+
+# Local env files (Supabase keys etc.)
+.env
+.env.local
+.env.*.local

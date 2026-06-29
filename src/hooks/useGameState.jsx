@@ -1,17 +1,20 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
 import { beep } from '../lib/sound.js'
-import { AVATARS } from '../lib/utils.js'
+import { AVATARS, GRADES } from '../lib/utils.js'
 import { supabase, cloudEnabled, pullProgress, pushProgress } from '../lib/supabase.js'
 
 const SAVE_KEY = 'eb-trainer-v2'
 const LEGACY_KEY = 'eb-trainer-v1'
+
+const GRADE_RANK = { again: 1, hard: 2, okay: 3, easy: 4 }
 
 function defaultState() {
   return {
     xp: 0,
     streak: 0,
     bestStreak: 0,
-    known: {}, // dishId -> true
+    known: {}, // dishId -> true (kept in sync with 'easy' level for the mastered count)
+    levels: {}, // dishId -> 'again' | 'hard' | 'okay' | 'easy'  (absent = new / to study)
     stats: { flashSeen: 0, quizCorrect: 0, quizTotal: 0, guardCorrect: 0, guardTotal: 0 },
     muted: false,
   }
@@ -20,7 +23,11 @@ function defaultState() {
 function normalizeState(s) {
   const d = defaultState()
   if (!s || typeof s !== 'object') return d
-  return { ...d, ...s, stats: { ...d.stats, ...(s.stats || {}) }, known: s.known || {} }
+  const known = s.known || {}
+  const levels = { ...(s.levels || {}) }
+  // Back-compat: cards mastered before grades existed count as 'easy'.
+  for (const id in known) if (!(id in levels)) levels[id] = 'easy'
+  return { ...d, ...s, stats: { ...d.stats, ...(s.stats || {}) }, known, levels }
 }
 
 function newId() {
@@ -232,6 +239,23 @@ export function GameProvider({ children }) {
     [updateActive]
   )
 
+  // Grade a flashcard. XP is awarded only for genuine improvement, so
+  // re-grading a card down (or spamming) doesn't farm points.
+  const gradeCard = useCallback(
+    (id, grade) =>
+      updateActive((d) => {
+        if (!GRADE_RANK[grade]) return d
+        const prevRank = d.levels[id] ? GRADE_RANK[d.levels[id]] : 0
+        const gained = Math.max(0, GRADE_RANK[grade] - prevRank) * 3
+        const levels = { ...d.levels, [id]: grade }
+        const known = { ...d.known }
+        if (grade === 'easy') known[id] = true
+        else delete known[id]
+        return { ...d, levels, known, xp: d.xp + gained }
+      }),
+    [updateActive]
+  )
+
   const recordQuiz = useCallback(
     (ok) =>
       updateActive((d) => ({
@@ -347,6 +371,7 @@ export function GameProvider({ children }) {
     addXP,
     bumpStreak,
     markKnown,
+    gradeCard,
     recordQuiz,
     recordGuard,
     bumpFlashSeen,

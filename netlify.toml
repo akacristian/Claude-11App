@@ -1,0 +1,10 @@
+# Netlify build settings for the Vite app.
+# Without this, Netlify serves the repo as-is (the dev index.html that loads
+# /src/main.jsx) and the page renders blank. These settings make Netlify build
+# the app and publish the compiled output in dist/.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"

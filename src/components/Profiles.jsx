@@ -200,9 +200,87 @@ export function ProfileMenu({ open, onClose }) {
             >
               + New player
             </button>
+
+            <AccountSection />
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// Cloud sync sign-in / status. Hidden entirely when Supabase isn't configured.
+function AccountSection() {
+  const g = useGame()
+  const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
+  const [err, setErr] = useState(null)
+
+  if (!g.cloud.enabled) return null
+
+  async function send(e) {
+    e.preventDefault()
+    setErr(null)
+    const { error } = await g.signIn(email)
+    if (error) setErr(error)
+    else setSent(true)
+  }
+
+  const statusLabel = {
+    idle: '',
+    syncing: 'Syncing…',
+    synced: 'Synced ✓',
+    error: 'Sync error',
+  }[g.cloud.status]
+
+  return (
+    <div className="mt-4 border-t border-slate-100 pt-3">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-sm font-bold text-slate-700">☁️ Sync across devices</span>
+        {g.cloud.signedIn && (
+          <span className="ml-auto text-xs text-slate-400">{statusLabel}</span>
+        )}
+      </div>
+
+      {g.cloud.signedIn ? (
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 truncate">{g.cloud.email}</span>
+          <button
+            onClick={g.signOut}
+            className="ml-auto text-xs font-semibold text-slate-500 underline shrink-0"
+          >
+            Sign out
+          </button>
+        </div>
+      ) : sent ? (
+        <p className="text-xs text-slate-500">
+          Check <span className="font-semibold">{email}</span> for a login link, then open it on any
+          device to sync your players.
+        </p>
+      ) : (
+        <form onSubmit={send} className="space-y-2">
+          <p className="text-xs text-slate-500">
+            Enter your email to save your players to the cloud and load them on any device.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@email.com"
+              className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+            />
+            <button
+              type="submit"
+              className="rounded-lg bg-emerald-500 px-3 py-2 text-sm font-bold text-white shrink-0"
+            >
+              Send link
+            </button>
+          </div>
+          {err && <p className="text-xs text-rose-500">{err}</p>}
+        </form>
+      )}
     </div>
   )
 }

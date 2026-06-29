@@ -1,16 +1,20 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
 import { beep } from '../lib/sound.js'
-import { AVATARS } from '../lib/utils.js'
+import { AVATARS, GRADES } from '../lib/utils.js'
+import { supabase, cloudEnabled, pullProgress, pushProgress } from '../lib/supabase.js'
 
 const SAVE_KEY = 'eb-trainer-v2'
 const LEGACY_KEY = 'eb-trainer-v1'
+
+const GRADE_RANK = { again: 1, hard: 2, okay: 3, easy: 4 }
 
 function defaultState() {
   return {
     xp: 0,
     streak: 0,
     bestStreak: 0,
-    known: {}, // dishId -> true
+    known: {}, // dishId -> true (kept in sync with 'easy' level for the mastered count)
+    levels: {}, // dishId -> 'again' | 'hard' | 'okay' | 'easy'  (absent = new / to study)
     stats: { flashSeen: 0, quizCorrect: 0, quizTotal: 0, guardCorrect: 0, guardTotal: 0 },
     muted: false,
   }
@@ -19,7 +23,11 @@ function defaultState() {
 function normalizeState(s) {
   const d = defaultState()
   if (!s || typeof s !== 'object') return d
-  return { ...d, ...s, stats: { ...d.stats, ...(s.stats || {}) }, known: s.known || {} }
+  const known = s.known || {}
+  const levels = { ...(s.levels || {}) }
+  // Back-compat: cards mastered before grades existed count as 'easy'.
+  for (const id in known) if (!(id in levels)) levels[id] = 'easy'
+  return { ...d, ...s, stats: { ...d.stats, ...(s.stats || {}) }, known, levels }
 }
 
 function newId() {
@@ -64,6 +72,22 @@ function loadStore() {
   return { activeId: null, users: [] }
 }
 
+// Normalize a whole store (e.g. one pulled from the cloud) into a valid shape.
+function normalizeStore(raw) {
+  if (!raw || !Array.isArray(raw.users)) return null
+  const users = raw.users
+    .filter((u) => u && u.id)
+    .map((u) => ({
+      id: u.id,
+      name: u.name || 'Player',
+      avatar: u.avatar || AVATARS[0],
+      state: normalizeState(u.state),
+    }))
+  if (!users.length) return null
+  const activeId = users.some((u) => u.id === raw.activeId) ? raw.activeId : users[0].id
+  return { activeId, users }
+}
+
 const GameContext = createContext(null)
 
 export function GameProvider({ children }) {
@@ -78,6 +102,85 @@ export function GameProvider({ children }) {
       /* ignore */
     }
   }, [store])
+
+  // ---- cloud sync (optional; only active when Supabase is configured) ----
+  const [session, setSession] = useState(null)
+  const [syncState, setSyncState] = useState('idle') // 'idle' | 'syncing' | 'synced' | 'error'
+  const storeRef = useRef(store)
+  storeRef.current = store
+  // True while we're applying a store pulled from the cloud, so the debounced
+  // push effect doesn't immediately echo it back up.
+  const applyingRemote = useRef(false)
+
+  // Track the auth session.
+  useEffect(() => {
+    if (!supabase) return
+    let active = true
+    supabase.auth.getSession().then(({ data }) => {
+      if (active) setSession(data.session ?? null)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s ?? null)
+    })
+    return () => {
+      active = false
+      sub.subscription.unsubscribe()
+    }
+  }, [])
+
+  // On sign-in: pull the cloud save (cloud wins) or seed it from local if empty.
+  const userId = session?.user?.id ?? null
+  useEffect(() => {
+    if (!supabase || !userId) return
+    let cancelled = false
+    setSyncState('syncing')
+    ;(async () => {
+      const remote = await pullProgress(userId)
+      if (cancelled) return
+      const normalized = normalizeStore(remote)
+      if (normalized) {
+        applyingRemote.current = true
+        setStore(normalized)
+      } else {
+        // No cloud save yet — push whatever this device has.
+        await pushProgress(userId, storeRef.current)
+      }
+      if (!cancelled) setSyncState('synced')
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [userId])
+
+  // Debounced push of local changes to the cloud while signed in.
+  useEffect(() => {
+    if (!supabase || !userId) return
+    if (applyingRemote.current) {
+      applyingRemote.current = false
+      return
+    }
+    setSyncState('syncing')
+    const t = setTimeout(async () => {
+      const ok = await pushProgress(userId, storeRef.current)
+      setSyncState(ok ? 'synced' : 'error')
+    }, 800)
+    return () => clearTimeout(t)
+  }, [store, userId])
+
+  const signIn = useCallback(async (email) => {
+    if (!supabase) return { error: 'Cloud sync is not configured.' }
+    const { error } = await supabase.auth.signInWithOtp({
+      email: (email || '').trim(),
+      options: { emailRedirectTo: window.location.origin + window.location.pathname },
+    })
+    return { error: error?.message ?? null }
+  }, [])
+
+  const signOut = useCallback(async () => {
+    if (!supabase) return
+    await supabase.auth.signOut()
+    setSyncState('idle')
+  }, [])
 
   // Update only the active profile's game state. `fn` maps old state -> new state.
   const updateActive = useCallback((fn) => {
@@ -132,6 +235,23 @@ export function GameProvider({ children }) {
       updateActive((d) => {
         if (d.known[id]) return d
         return { ...d, known: { ...d.known, [id]: true }, xp: d.xp + 5 }
+      }),
+    [updateActive]
+  )
+
+  // Grade a flashcard. XP is awarded only for genuine improvement, so
+  // re-grading a card down (or spamming) doesn't farm points.
+  const gradeCard = useCallback(
+    (id, grade) =>
+      updateActive((d) => {
+        if (!GRADE_RANK[grade]) return d
+        const prevRank = d.levels[id] ? GRADE_RANK[d.levels[id]] : 0
+        const gained = Math.max(0, GRADE_RANK[grade] - prevRank) * 3
+        const levels = { ...d.levels, [id]: grade }
+        const known = { ...d.known }
+        if (grade === 'easy') known[id] = true
+        else delete known[id]
+        return { ...d, levels, known, xp: d.xp + gained }
       }),
     [updateActive]
   )
@@ -238,10 +358,20 @@ export function GameProvider({ children }) {
     switchUser,
     renameUser,
     deleteUser,
+    // cloud sync
+    cloud: {
+      enabled: cloudEnabled,
+      email: session?.user?.email ?? null,
+      signedIn: !!session,
+      status: syncState,
+    },
+    signIn,
+    signOut,
     // gameplay
     addXP,
     bumpStreak,
     markKnown,
+    gradeCard,
     recordQuiz,
     recordGuard,
     bumpFlashSeen,

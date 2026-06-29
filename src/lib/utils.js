@@ -92,3 +92,6 @@ export function secBar(sec) {
 
 // Emoji avatars selectable when creating a player profile.
 export const AVATARS = ['🧑‍🍳', '👩‍🍳', '🦊', '🐼', '🐧', '🦉', '🐯', '🐸', '🦄', '🐙', '🌮', '🍣']
+
+// Spaced-repetition flashcard grades, from least to most learned.
+export const GRADES = ['again', 'hard', 'okay', 'easy']

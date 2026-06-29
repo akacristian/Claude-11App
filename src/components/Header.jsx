@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useGame } from '../hooks/useGameState.jsx'
 import { levelInfo } from '../lib/utils.js'
+import { ProfileButton, ProfileMenu } from './Profiles.jsx'
 
 export default function Header() {
   const g = useGame()
   const li = levelInfo(g.xp)
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
       <div className="max-w-4xl mx-auto px-4 py-3">
@@ -25,8 +28,10 @@ export default function Header() {
             >
               {g.muted ? '🔇' : '🔊'}
             </button>
+            <ProfileButton onClick={() => setMenuOpen(true)} />
           </div>
         </div>
+        <ProfileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
         <div className="mt-2 flex items-center gap-2">
           <span className="text-xs font-bold text-slate-700 shrink-0">Lv {li.lvl}</span>
           <div className="flex-1 h-2.5 rounded-full bg-slate-200 overflow-hidden">

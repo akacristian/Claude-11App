@@ -6,6 +6,7 @@ import Flashcards from './components/Flashcards.jsx'
 import Quiz from './components/Quiz.jsx'
 import AllergyGuard from './components/AllergyGuard.jsx'
 import MenuBrowser from './components/MenuBrowser.jsx'
+import { ProfileGate } from './components/Profiles.jsx'
 
 const TABS = [
   { key: 'home', label: '🏠 Home' },
@@ -18,6 +19,9 @@ const TABS = [
 export default function App() {
   const [tab, setTab] = useState('home')
   const g = useGame()
+
+  // No profile selected yet (first run or after deleting the last one).
+  if (!g.activeUser) return <ProfileGate />
 
   return (
     <div className="bg-slate-100 text-slate-800 min-h-screen">

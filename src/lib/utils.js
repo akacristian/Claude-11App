@@ -89,3 +89,6 @@ export function secChip(sec) {
 export function secBar(sec) {
   return BAR[SECTIONS[sec]?.color || 'slate']
 }
+
+// Emoji avatars selectable when creating a player profile.
+export const AVATARS = ['🧑‍🍳', '👩‍🍳', '🦊', '🐼', '🐧', '🦉', '🐯', '🐸', '🦄', '🐙', '🌮', '🍣']

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { DISHES, SECTIONS } from '../data/dishes.js'
+import { DISHES, SECTIONS, ALLERGENS, PROFILES } from '../data/dishes.js'
 import { secBar, ALLERGEN_LABEL } from '../lib/utils.js'
 import FlagPills from './FlagPills.jsx'
 import Field from './Field.jsx'
@@ -7,13 +7,21 @@ import Field from './Field.jsx'
 export default function MenuBrowser() {
   const [q, setQ] = useState('')
   const [sec, setSec] = useState('all')
+  const [diet, setDiet] = useState(null) // null = no dietary filter; PROFILES index
   const [open, setOpen] = useState({})
 
   const sections = ['all', ...Object.keys(SECTIONS)]
 
+  const activeProfile = diet !== null ? PROFILES[diet] : null
+
   const groups = useMemo(() => {
     const needle = q.trim().toLowerCase()
     let items = DISHES.filter((d) => sec === 'all' || d.sec === sec)
+    if (activeProfile) {
+      // Show only dishes that are safe (no 'yes' flags for the profile's keys).
+      // Dishes with 'mod' flags are still included (safe with modification).
+      items = items.filter((d) => activeProfile.keys.every((k) => d.flags[k] !== 'yes'))
+    }
     if (needle) {
       items = items.filter((d) => {
         const hay = (
@@ -37,7 +45,7 @@ export default function MenuBrowser() {
       ;(g[d.sec] = g[d.sec] || []).push(d)
     })
     return g
-  }, [q, sec])
+  }, [q, sec, activeProfile])
 
   const hasResults = Object.keys(groups).length > 0
 
@@ -58,6 +66,17 @@ export default function MenuBrowser() {
               className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${s === sec ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}
             >
               {s === 'all' ? 'All' : `${SECTIONS[s].emoji} ${s}`}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1.5 mt-1.5 overflow-x-auto no-scrollbar">
+          {PROFILES.map((p, i) => (
+            <button
+              key={p.name}
+              onClick={() => setDiet(diet === i ? null : i)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${diet === i ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}
+            >
+              {p.icon} {p.name}
             </button>
           ))}
         </div>
@@ -93,6 +112,24 @@ export default function MenuBrowser() {
   )
 }
 
+function AllergenDots({ dish }) {
+  const dots = []
+  for (const a of ALLERGENS) {
+    const v = dish.flags[a.key]
+    if (!v) continue
+    dots.push(
+      <span
+        key={a.key}
+        title={`${a.label}${v === 'mod' ? ' · can modify' : ''}`}
+        className={`text-sm leading-none ${v === 'yes' ? 'opacity-100' : 'opacity-60'}`}
+      >
+        {a.icon}
+      </span>
+    )
+  }
+  return dots.length ? <div className="flex flex-wrap gap-0.5">{dots}</div> : null
+}
+
 function Row({ dish, open, onToggle }) {
   return (
     <div className="rounded-xl bg-white border border-slate-100 shadow-sm mb-2 overflow-hidden">
@@ -100,6 +137,9 @@ function Row({ dish, open, onToggle }) {
         <div className="min-w-0 flex-1">
           <div className="font-semibold text-slate-900 leading-snug">{dish.name}</div>
           <div className="text-xs text-slate-500 truncate">{dish.desc}</div>
+          <div className="mt-1">
+            <AllergenDots dish={dish} />
+          </div>
         </div>
         <div className="text-slate-300 text-lg shrink-0">{open ? '▲' : '▼'}</div>
       </button>

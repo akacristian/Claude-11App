@@ -56,19 +56,6 @@ export const DISHES = [
     flags: { dairy: 'yes', sesame: 'yes', alliums: 'yes' },
   },
 
-  /* 4 */ {
-    id: 4,
-    sec: 'Appetisers',
-    name: 'Sweetcorn Custard, Puffed Black Rice (OFF MENU)',
-    desc: 'Sweetcorn custard with puffed black rice, on the side endive leaf and rice cracker.',
-    process:
-      'Corn is grilled then blended with flora (vegan plant based cream), seasoned with savoury yeast flakes, gf soy, and salt. Pickled corn kernels on top, puffed wild rice, and pimento oil. Served on the side with endive leaf and rice cracker lightly dusted with tomato powder.',
-    allergies:
-      'Nightshade (tomato/pimento) can be removed. Sesame in the cracker. Vegan, gluten free and dairy free.',
-    mise: 'Small teaspoon.',
-    flags: { sesame: 'yes', nightshade: 'mod' },
-  },
-
   /* 5 */ {
     id: 5,
     sec: 'Appetisers',

@@ -137,11 +137,11 @@ function Row({ dish, open, onToggle }) {
         <div className="min-w-0 flex-1">
           <div className="font-semibold text-slate-900 leading-snug">{dish.name}</div>
           <div className="text-xs text-slate-500 truncate">{dish.desc}</div>
-          <div className="mt-1">
-            <AllergenDots dish={dish} />
-          </div>
         </div>
-        <div className="text-slate-300 text-lg shrink-0">{open ? '▲' : '▼'}</div>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <div className="text-slate-300 text-lg">{open ? '▲' : '▼'}</div>
+          <AllergenDots dish={dish} />
+        </div>
       </button>
       {open && (
         <div className="px-4 pb-4 pt-1 border-t border-slate-100">

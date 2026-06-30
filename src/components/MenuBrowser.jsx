@@ -112,17 +112,15 @@ export default function MenuBrowser() {
   )
 }
 
-function AllergenDots({ dish }) {
+function AllergenDots({ dish, filter }) {
   const dots = []
   for (const a of ALLERGENS) {
     const v = dish.flags[a.key]
     if (!v) continue
+    if (filter === 'mod' && v !== 'mod') continue
+    if (filter === 'yes' && v !== 'yes') continue
     dots.push(
-      <span
-        key={a.key}
-        title={`${a.label}${v === 'mod' ? ' · can modify' : ''}`}
-        className={`text-sm leading-none ${v === 'yes' ? 'opacity-100' : 'opacity-60'}`}
-      >
+      <span key={a.key} title={`${a.label}${v === 'mod' ? ' · can modify' : ''}`} className="text-sm leading-none">
         {a.icon}
       </span>
     )
@@ -137,10 +135,11 @@ function Row({ dish, open, onToggle }) {
         <div className="min-w-0 flex-1">
           <div className="font-semibold text-slate-900 leading-snug">{dish.name}</div>
           <div className="text-xs text-slate-500 truncate">{dish.desc}</div>
+          <AllergenDots dish={dish} filter="yes" />
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className="text-slate-300 text-lg">{open ? '▲' : '▼'}</div>
-          <AllergenDots dish={dish} />
+          <AllergenDots dish={dish} filter="mod" />
         </div>
       </button>
       {open && (

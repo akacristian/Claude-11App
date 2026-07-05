@@ -13,8 +13,8 @@ function AvatarPicker({ value, onChange }) {
           onClick={() => onChange(a)}
           className={`aspect-square rounded-xl text-2xl grid place-items-center border-2 transition ${
             value === a
-              ? 'border-emerald-500 bg-emerald-50'
-              : 'border-slate-200 bg-white hover:border-slate-300'
+              ? 'border-brass-500 bg-brass-100'
+              : 'border-stone-200 bg-paper hover:border-stone-300'
           }`}
         >
           {a}
@@ -38,18 +38,18 @@ function CreateForm({ onCreate, onCancel }) {
   return (
     <form onSubmit={submit} className="space-y-3">
       <div>
-        <label className="text-xs font-semibold text-slate-500">Name</label>
+        <label className="text-xs font-semibold text-stone-500">Name</label>
         <input
           autoFocus
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={20}
           placeholder="Your name"
-          className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-slate-900 outline-none focus:border-emerald-400"
+          className="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2.5 text-stone-900 outline-none focus:border-brass-400"
         />
       </div>
       <div>
-        <label className="text-xs font-semibold text-slate-500">Pick an avatar</label>
+        <label className="text-xs font-semibold text-stone-500">Pick an avatar</label>
         <div className="mt-1">
           <AvatarPicker value={avatar} onChange={setAvatar} />
         </div>
@@ -59,14 +59,14 @@ function CreateForm({ onCreate, onCancel }) {
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 font-semibold text-slate-600"
+            className="flex-1 rounded-xl border border-stone-200 py-2.5 font-semibold text-stone-600"
           >
             Cancel
           </button>
         )}
         <button
           type="submit"
-          className="flex-1 rounded-xl bg-emerald-500 py-2.5 font-bold text-white active:scale-95 transition"
+          className="flex-1 rounded-xl bg-pine-700 py-2.5 font-bold text-cream active:scale-95 transition"
         >
           {onCancel ? 'Add player' : "Let's go"}
         </button>
@@ -82,15 +82,17 @@ export function ProfileGate() {
   const [adding, setAdding] = useState(!hasUsers)
 
   return (
-    <div className="min-h-screen bg-slate-100 grid place-items-center p-4">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl">
+    <div className="min-h-screen bg-cream grid place-items-center p-4">
+      <div className="w-full max-w-sm rounded-3xl bg-paper p-6 shadow-xl border border-stone-200">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-11 h-11 rounded-xl bg-slate-900 text-white grid place-items-center font-black text-lg">
+          <div className="w-11 h-11 rounded-lg bg-pine-800 text-brass-200 grid place-items-center font-display font-semibold text-xl">
             11
           </div>
           <div>
-            <h1 className="font-extrabold text-slate-900 leading-tight">Eleven Barrack</h1>
-            <p className="text-xs text-slate-500 -mt-0.5">Who&apos;s studying?</p>
+            <h1 className="font-display font-semibold text-lg text-pine-900 leading-tight">
+              Eleven Barrack
+            </h1>
+            <p className="text-xs text-stone-500 -mt-0.5">Who&apos;s studying?</p>
           </div>
         </div>
 
@@ -100,16 +102,16 @@ export function ProfileGate() {
               <button
                 key={u.id}
                 onClick={() => g.switchUser(u.id)}
-                className="w-full flex items-center gap-3 rounded-xl border border-slate-200 p-3 text-left hover:border-emerald-300 active:scale-[.99] transition"
+                className="w-full flex items-center gap-3 rounded-xl border border-stone-200 p-3 text-left hover:border-brass-400 active:scale-[.99] transition"
               >
                 <span className="text-2xl">{u.avatar}</span>
-                <span className="font-semibold text-slate-800">{u.name}</span>
-                <span className="ml-auto text-slate-300 text-xl">›</span>
+                <span className="font-semibold text-stone-800">{u.name}</span>
+                <span className="ml-auto text-brass-400 text-xl">›</span>
               </button>
             ))}
             <button
               onClick={() => setAdding(true)}
-              className="w-full rounded-xl border-2 border-dashed border-slate-200 p-3 font-semibold text-slate-500 hover:border-emerald-300"
+              className="w-full rounded-xl border-2 border-dashed border-stone-300 p-3 font-semibold text-stone-500 hover:border-brass-400"
             >
               + New player
             </button>
@@ -137,10 +139,12 @@ export function ProfileMenu({ open, onClose }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl bg-white p-5 shadow-xl max-h-[85vh] overflow-y-auto">
+      <div className="relative w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl bg-paper p-5 shadow-xl max-h-[85vh] overflow-y-auto">
         <div className="flex items-center mb-3">
-          <h2 className="font-extrabold text-slate-900">{adding ? 'Add player' : 'Players'}</h2>
-          <button onClick={onClose} className="ml-auto text-slate-400 text-xl px-2">
+          <h2 className="font-display font-semibold text-lg text-pine-900">
+            {adding ? 'Add player' : 'Players'}
+          </h2>
+          <button onClick={onClose} className="ml-auto text-stone-400 text-xl px-2">
             ✕
           </button>
         </div>
@@ -162,7 +166,7 @@ export function ProfileMenu({ open, onClose }) {
                 <div
                   key={u.id}
                   className={`flex items-center gap-3 rounded-xl border p-3 ${
-                    active ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200'
+                    active ? 'border-brass-400 bg-brass-100/50' : 'border-stone-200'
                   }`}
                 >
                   <button
@@ -174,8 +178,8 @@ export function ProfileMenu({ open, onClose }) {
                   >
                     <span className="text-2xl">{u.avatar}</span>
                     <span className="min-w-0">
-                      <span className="block font-semibold text-slate-800 truncate">{u.name}</span>
-                      <span className="block text-xs text-slate-500">
+                      <span className="block font-semibold text-stone-800 truncate">{u.name}</span>
+                      <span className="block text-xs text-stone-500">
                         {active ? 'Active' : 'Tap to switch'}
                       </span>
                     </span>
@@ -186,7 +190,7 @@ export function ProfileMenu({ open, onClose }) {
                         if (confirm(`Delete ${u.name} and their progress?`)) g.deleteUser(u.id)
                       }}
                       title="Delete player"
-                      className="text-slate-300 hover:text-rose-500 px-1 text-lg shrink-0"
+                      className="text-stone-300 hover:text-rose-500 px-1 text-lg shrink-0"
                     >
                       🗑️
                     </button>
@@ -196,7 +200,7 @@ export function ProfileMenu({ open, onClose }) {
             })}
             <button
               onClick={() => setAdding(true)}
-              className="w-full rounded-xl border-2 border-dashed border-slate-200 p-3 font-semibold text-slate-500 hover:border-emerald-300"
+              className="w-full rounded-xl border-2 border-dashed border-stone-300 p-3 font-semibold text-stone-500 hover:border-brass-400"
             >
               + New player
             </button>
@@ -234,32 +238,32 @@ function AccountSection() {
   }[g.cloud.status]
 
   return (
-    <div className="mt-4 border-t border-slate-100 pt-3">
+    <div className="mt-4 border-t border-stone-100 pt-3">
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm font-bold text-slate-700">☁️ Sync across devices</span>
+        <span className="text-sm font-bold text-stone-700">☁️ Sync across devices</span>
         {g.cloud.signedIn && (
-          <span className="ml-auto text-xs text-slate-400">{statusLabel}</span>
+          <span className="ml-auto text-xs text-stone-400">{statusLabel}</span>
         )}
       </div>
 
       {g.cloud.signedIn ? (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 truncate">{g.cloud.email}</span>
+          <span className="text-xs text-stone-500 truncate">{g.cloud.email}</span>
           <button
             onClick={g.signOut}
-            className="ml-auto text-xs font-semibold text-slate-500 underline shrink-0"
+            className="ml-auto text-xs font-semibold text-stone-500 underline shrink-0"
           >
             Sign out
           </button>
         </div>
       ) : sent ? (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Check <span className="font-semibold">{email}</span> for a login link, then open it on any
           device to sync your players.
         </p>
       ) : (
         <form onSubmit={send} className="space-y-2">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-stone-500">
             Enter your email to save your players to the cloud and load them on any device.
           </p>
           <div className="flex gap-2">
@@ -269,11 +273,11 @@ function AccountSection() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
-              className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+              className="flex-1 rounded-lg border border-stone-200 px-3 py-2 text-sm outline-none focus:border-brass-400"
             />
             <button
               type="submit"
-              className="rounded-lg bg-emerald-500 px-3 py-2 text-sm font-bold text-white shrink-0"
+              className="rounded-lg bg-pine-700 px-3 py-2 text-sm font-bold text-cream shrink-0"
             >
               Send link
             </button>
@@ -294,14 +298,14 @@ export function ProfileButton({ onClick }) {
     <button
       onClick={onClick}
       title="Switch player"
-      className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 hover:bg-slate-100"
+      className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 hover:bg-stone-100"
     >
       <span className="text-xl">{g.activeUser.avatar}</span>
       <span className="hidden sm:block text-left leading-tight">
-        <span className="block text-xs font-bold text-slate-700 max-w-[80px] truncate">
+        <span className="block text-xs font-bold text-stone-700 max-w-[80px] truncate">
           {g.activeUser.name}
         </span>
-        <span className="block text-[10px] text-slate-400">Lv {li.lvl}</span>
+        <span className="block text-[10px] text-stone-400">Lv {li.lvl}</span>
       </span>
     </button>
   )

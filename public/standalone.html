@@ -4,15 +4,23 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Eleven Barrack · Food Notes Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   if (window.tailwind) tailwind.config = {
     theme: {
       extend: {
-        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], display: ['Fraunces', 'Georgia', 'serif'] },
+        colors: {
+          cream: '#f4f0e6', paper: '#fffdf7',
+          pine: { 50:'#f0f4f1',100:'#dde8e0',300:'#9db8a8',500:'#4a6b58',600:'#3c5a49',700:'#2f4839',800:'#26392e',900:'#1d2b23' },
+          brass: { 100:'#f3e8d3',200:'#e9d8b4',400:'#c9a35e',500:'#b98a3c',600:'#9c7330',700:'#7d5b26' },
+        },
         keyframes: {
           pop: { '0%': { transform: 'scale(.96)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
-          shake: { '10%,90%': { transform: 'translateX(-2px)' }, '30%,70%': { transform: 'translateX(4px)' }, '50%': { transform: 'translateX(-6px)' } },
+          shake: { '10%,90%': { transform: 'transtoneX(-2px)' }, '30%,70%': { transform: 'transtoneX(4px)' }, '50%': { transform: 'transtoneX(-6px)' } },
           flash: { '0%': { opacity: '.85' }, '100%': { opacity: '0' } },
         },
         animation: {
@@ -36,19 +44,19 @@
   .no-scrollbar::-webkit-scrollbar { display: none; }
 </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+<body class="bg-cream text-stone-800 font-sans min-h-screen">
 
 <!-- full-screen feedback flash -->
 <div id="flash" class="pointer-events-none fixed inset-0 z-50 hidden"></div>
 
 <!-- ===================== HEADER / HUD ===================== -->
-<header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
+<header class="sticky top-0 z-40 bg-paper/90 backdrop-blur border-b border-stone-200">
   <div class="max-w-4xl mx-auto px-4 py-3">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-slate-900 text-white grid place-items-center font-black text-lg shrink-0">11</div>
+      <div class="w-10 h-10 rounded-lg bg-pine-800 text-brass-200 grid place-items-center font-display font-semibold text-xl shrink-0">11</div>
       <div class="min-w-0">
-        <h1 class="font-extrabold leading-tight text-slate-900">Eleven Barrack</h1>
-        <p class="text-xs text-slate-500 -mt-0.5">Food Notes Trainer · May 2026</p>
+        <h1 class="font-display font-semibold text-lg leading-tight text-pine-900 tracking-tight">Eleven Barrack</h1>
+        <p class="text-xs text-stone-500 -mt-0.5">Food Notes Trainer · May 2026</p>
       </div>
       <div class="ml-auto flex items-center gap-2 sm:gap-3">
         <div class="text-right">
@@ -56,37 +64,37 @@
             <span class="text-orange-500">🔥</span>
             <span id="hud-streak" class="font-bold tabular-nums">0</span>
           </div>
-          <div class="text-[10px] uppercase tracking-wide text-slate-400">streak</div>
+          <div class="text-[10px] uppercase tracking-wide text-stone-400">streak</div>
         </div>
         <div class="text-right">
           <div class="flex items-center gap-1 justify-end">
             <span class="text-yellow-500">⭐</span>
             <span id="hud-xp" class="font-bold tabular-nums">0</span>
           </div>
-          <div class="text-[10px] uppercase tracking-wide text-slate-400">XP</div>
+          <div class="text-[10px] uppercase tracking-wide text-stone-400">XP</div>
         </div>
-        <button id="btn-mute" title="Toggle sound" class="w-9 h-9 grid place-items-center rounded-lg hover:bg-slate-100 text-lg">🔊</button>
+        <button id="btn-mute" title="Toggle sound" class="w-9 h-9 grid place-items-center rounded-lg hover:bg-stone-100 text-lg">🔊</button>
       </div>
     </div>
     <!-- level / progress bar -->
     <div class="mt-2 flex items-center gap-2">
-      <span id="hud-level" class="text-xs font-bold text-slate-700 shrink-0">Lv 1</span>
-      <div class="flex-1 h-2.5 rounded-full bg-slate-200 overflow-hidden">
-        <div id="hud-bar" class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500" style="width:0%"></div>
+      <span id="hud-level" class="text-xs font-bold text-stone-700 shrink-0">Lv 1</span>
+      <div class="flex-1 h-2.5 rounded-full bg-stone-200 overflow-hidden">
+        <div id="hud-bar" class="h-full bg-gradient-to-r from-brass-400 to-brass-600 transition-all duration-500" style="width:0%"></div>
       </div>
-      <span id="hud-next" class="text-[10px] text-slate-400 shrink-0 tabular-nums">0/100</span>
+      <span id="hud-next" class="text-[10px] text-stone-400 shrink-0 tabular-nums">0/100</span>
     </div>
   </div>
 </header>
 
 <!-- ===================== TAB BAR ===================== -->
-<nav class="sticky top-[88px] z-30 bg-slate-100/95 backdrop-blur border-b border-slate-200">
+<nav class="sticky top-[88px] z-30 bg-cream/95 backdrop-blur border-b border-stone-200">
   <div class="max-w-4xl mx-auto px-2 flex gap-1 overflow-x-auto no-scrollbar">
-    <button data-tab="home"      class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">🏠 Home</button>
-    <button data-tab="flash"     class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">🃏 Flashcards</button>
-    <button data-tab="quiz"      class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">❓ Quiz</button>
-    <button data-tab="guard"     class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">🛡️ Allergy Guard</button>
-    <button data-tab="browser"   class="tab-btn px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-500">📖 Menu</button>
+    <button data-tab="home"      class="tab-btn px-4 py-2.5 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap border-b-2 border-transparent text-stone-500">Home</button>
+    <button data-tab="flash"     class="tab-btn px-4 py-2.5 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap border-b-2 border-transparent text-stone-500">Flashcards</button>
+    <button data-tab="quiz"      class="tab-btn px-4 py-2.5 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap border-b-2 border-transparent text-stone-500">Quiz</button>
+    <button data-tab="guard"     class="tab-btn px-4 py-2.5 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap border-b-2 border-transparent text-stone-500">Allergy Guard</button>
+    <button data-tab="browser"   class="tab-btn px-4 py-2.5 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap border-b-2 border-transparent text-stone-500">Menu</button>
   </div>
 </nav>
 
@@ -155,12 +163,6 @@ const DISHES = [
   mise:"One serve = one skewer.",
   flags:{ dairy:'yes', sesame:'yes', alliums:'yes' } },
 
-/* 4 */ { id:4, sec:"Appetisers", name:"Sweetcorn Custard, Puffed Black Rice (OFF MENU)",
-  desc:"Sweetcorn custard with puffed black rice, on the side endive leaf and rice cracker.",
-  process:"Corn is grilled then blended with flora (vegan plant based cream), seasoned with savoury yeast flakes, gf soy, and salt. Pickled corn kernels on top, puffed wild rice, and pimento oil. Served on the side with endive leaf and rice cracker lightly dusted with tomato powder.",
-  allergies:"Nightshade (tomato/pimento) can be removed. Sesame in the cracker. Vegan, gluten free and dairy free.",
-  mise:"Small teaspoon.",
-  flags:{ sesame:'yes', nightshade:'mod' } },
 
 /* 5 */ { id:5, sec:"Appetisers", name:"Bluefin Tuna Crumpet, Horseradish Cream",
   desc:"Tuna crumpet with horseradish cream and chives.",
@@ -547,7 +549,7 @@ const GUEST_NAMES = ['Mr Tan','Ms Okafor','The Lee party','Table 12','Dr Rossi',
 
 /* color helpers (static classes so Tailwind CDN picks them up at runtime is fine) */
 function secChip(sec){
-  const c = SECTIONS[sec]?.color || 'slate';
+  const c = SECTIONS[sec]?.color || 'stone';
   const map = {
     amber:'bg-amber-100 text-amber-800', orange:'bg-orange-100 text-orange-800',
     lime:'bg-lime-100 text-lime-800', yellow:'bg-yellow-100 text-yellow-800',
@@ -555,13 +557,13 @@ function secChip(sec){
     purple:'bg-purple-100 text-purple-800', red:'bg-red-100 text-red-800',
     teal:'bg-teal-100 text-teal-800', pink:'bg-pink-100 text-pink-800',
     indigo:'bg-indigo-100 text-indigo-800', cyan:'bg-cyan-100 text-cyan-800',
-    slate:'bg-slate-100 text-slate-800',
+    stone:'bg-stone-100 text-stone-800',
   };
   return map[c];
 }
 function secBar(sec){
-  const c = SECTIONS[sec]?.color || 'slate';
-  const map = { amber:'bg-amber-500',orange:'bg-orange-500',lime:'bg-lime-500',yellow:'bg-yellow-500',green:'bg-green-500',rose:'bg-rose-500',purple:'bg-purple-500',red:'bg-red-500',teal:'bg-teal-500',pink:'bg-pink-500',indigo:'bg-indigo-500',cyan:'bg-cyan-500',slate:'bg-slate-500' };
+  const c = SECTIONS[sec]?.color || 'stone';
+  const map = { amber:'bg-amber-500',orange:'bg-orange-500',lime:'bg-lime-500',yellow:'bg-yellow-500',green:'bg-green-500',rose:'bg-rose-500',purple:'bg-purple-500',red:'bg-red-500',teal:'bg-teal-500',pink:'bg-pink-500',indigo:'bg-indigo-500',cyan:'bg-cyan-500',stone:'bg-stone-500' };
   return map[c];
 }
 
@@ -621,7 +623,7 @@ function beep(type){
 }
 function flash(kind){
   const el=document.getElementById('flash');
-  el.className = 'pointer-events-none fixed inset-0 z-50 animate-flash ' + (kind==='good'?'bg-emerald-400':'bg-rose-500');
+  el.className = 'pointer-events-none fixed inset-0 z-50 animate-flash ' + (kind==='good'?'bg-pine-500':'bg-rose-500');
   el.style.display='block';
   setTimeout(()=>{ el.style.display='none'; el.className='pointer-events-none fixed inset-0 z-50 hidden'; }, 480);
 }
@@ -649,9 +651,9 @@ function showTab(name){
   document.getElementById('tab-'+name).classList.remove('hidden');
   document.querySelectorAll('.tab-btn').forEach(b=>{
     const on = b.dataset.tab===name;
-    b.classList.toggle('border-emerald-500', on);
-    b.classList.toggle('text-slate-900', on);
-    b.classList.toggle('text-slate-500', !on);
+    b.classList.toggle('border-brass-500', on);
+    b.classList.toggle('text-pine-800', on);
+    b.classList.toggle('text-stone-500', !on);
     b.classList.toggle('border-transparent', !on);
   });
   if(TAB_RENDER[name]) TAB_RENDER[name]();
@@ -671,19 +673,19 @@ TAB_RENDER.home = function(){
   const gacc = state.stats.guardTotal ? Math.round(100*state.stats.guardCorrect/state.stats.guardTotal) : 0;
   const el = document.getElementById('tab-home');
   el.innerHTML = `
-    <div class="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 text-white p-5 shadow-lg">
-      <p class="text-sm text-slate-300">Welcome back — train your floor knowledge</p>
+    <div class="rounded-2xl bg-pine-800 text-cream p-5 shadow-lg">
+      <p class="text-sm text-stone-300">Welcome back — train your floor knowledge</p>
       <div class="flex items-end gap-4 mt-2">
-        <div><div class="text-4xl font-black">Lv ${li.lvl}</div><div class="text-xs text-slate-300">${state.xp} XP total</div></div>
+        <div><div class="font-display font-semibold text-5xl">Lv ${li.lvl}</div><div class="text-xs text-stone-300">${state.xp} XP total</div></div>
         <div class="ml-auto text-right">
           <div class="text-2xl font-bold">🔥 ${state.streak}</div>
-          <div class="text-xs text-slate-300">best ${state.bestStreak}</div>
+          <div class="text-xs text-stone-300">best ${state.bestStreak}</div>
         </div>
       </div>
-      <div class="mt-3 h-2.5 rounded-full bg-white/20 overflow-hidden">
-        <div class="h-full bg-emerald-400" style="width:${li.pct}%"></div>
+      <div class="mt-3 h-2.5 rounded-full bg-paper/20 overflow-hidden">
+        <div class="h-full bg-brass-400" style="width:${li.pct}%"></div>
       </div>
-      <div class="text-[11px] text-slate-300 mt-1">${li.into}/${li.need} XP to next level</div>
+      <div class="text-[11px] text-stone-300 mt-1">${li.into}/${li.need} XP to next level</div>
     </div>
 
     <div class="grid grid-cols-2 gap-3">
@@ -693,16 +695,16 @@ TAB_RENDER.home = function(){
       ${statCard('📖','Menu items', total, 'browser')}
     </div>
 
-    <h2 class="font-bold text-slate-700 mt-2">Choose a mode</h2>
+    <h2 class="font-bold text-stone-700 mt-2">Choose a mode</h2>
     <div class="space-y-3">
-      ${modeCard('flash','🃏','Flashcards','Study every dish — table description, process, allergies & mise en place. Flip, learn, mark as mastered.','emerald')}
-      ${modeCard('quiz','❓','Multiple Choice Quiz','Test yourself on table descriptions, ingredients and allergy rules with instant feedback.','sky')}
-      ${modeCard('guard','🛡️','Allergy Safe Guard','A guest sits down with an allergy. Approve or reject each dish before it leaves the pass.','rose')}
-      ${modeCard('browser','📖','Menu Reference','Searchable dictionary of the full notes, grouped by section.','violet')}
+      ${modeCard('flash','🃏','Flashcards','Study every dish — table description, process, allergies & mise en place. Flip, learn, mark as mastered.')}
+      ${modeCard('quiz','❓','Multiple Choice Quiz','Test yourself on table descriptions, ingredients and allergy rules with instant feedback.')}
+      ${modeCard('guard','🛡️','Allergy Safe Guard','A guest sits down with an allergy. Approve or reject each dish before it leaves the pass.')}
+      ${modeCard('browser','📖','Menu Reference','Searchable dictionary of the full notes, grouped by section.')}
     </div>
 
     <div class="text-center pt-2">
-      <button id="reset-btn" class="text-xs text-slate-400 underline">Reset progress</button>
+      <button id="reset-btn" class="text-xs text-stone-400 underline">Reset progress</button>
     </div>`;
   el.querySelectorAll('[data-go]').forEach(c=> c.addEventListener('click', ()=>showTab(c.dataset.go)));
   el.querySelector('#reset-btn').addEventListener('click', ()=>{
@@ -710,16 +712,16 @@ TAB_RENDER.home = function(){
   });
 };
 function statCard(icon,label,val,go){
-  return `<button data-go="${go}" class="text-left rounded-xl bg-white p-3 shadow-sm border border-slate-100 active:scale-95 transition">
+  return `<button data-go="${go}" class="text-left rounded-xl bg-paper p-3 shadow-sm border border-stone-100 active:scale-95 transition">
     <div class="text-xl">${icon}</div>
-    <div class="text-2xl font-extrabold text-slate-900 leading-tight">${val}</div>
-    <div class="text-xs text-slate-500">${label}</div></button>`;
+    <div class="font-display font-semibold text-3xl text-pine-900 leading-tight">${val}</div>
+    <div class="text-xs text-stone-500">${label}</div></button>`;
 }
-function modeCard(go,icon,title,desc,color){
-  return `<button data-go="${go}" class="w-full text-left rounded-2xl bg-white p-4 shadow-sm border border-slate-100 flex gap-4 items-start active:scale-[.99] transition hover:border-${color}-300">
-    <div class="text-3xl">${icon}</div>
-    <div class="min-w-0"><div class="font-bold text-slate-900">${title}</div><div class="text-sm text-slate-500">${desc}</div></div>
-    <div class="ml-auto self-center text-slate-300 text-xl">›</div></button>`;
+function modeCard(go,icon,title,desc){
+  return `<button data-go="${go}" class="w-full text-left rounded-xl bg-paper p-4 shadow-sm border border-stone-200 flex gap-4 items-start active:scale-[.99] transition hover:border-brass-400">
+    <div class="w-12 h-12 shrink-0 rounded-lg bg-pine-50 border border-pine-100 grid place-items-center text-2xl">${icon}</div>
+    <div class="min-w-0"><div class="font-display font-semibold text-pine-900">${title}</div><div class="text-sm text-stone-500">${desc}</div></div>
+    <div class="ml-auto self-center text-brass-500 text-xl">›</div></button>`;
 }
 
 /* =========================================================================
@@ -737,17 +739,17 @@ TAB_RENDER.flash = function(){
   const secs = ['all', ...Object.keys(SECTIONS)];
   el.innerHTML = `
     <div class="flex items-center gap-2 flex-wrap">
-      <select id="flash-filter" class="text-sm rounded-lg border-slate-200 border px-2 py-1.5 bg-white">
+      <select id="flash-filter" class="text-sm rounded-lg border-stone-200 border px-2 py-1.5 bg-paper">
         ${secs.map(s=>`<option value="${s}" ${s===flashState.filter?'selected':''}>${s==='all'?'All sections':s}</option>`).join('')}
       </select>
-      <button id="flash-shuffle" class="text-sm px-3 py-1.5 rounded-lg bg-slate-200 font-semibold">🔀 Shuffle</button>
-      <span id="flash-count" class="ml-auto text-sm text-slate-500 tabular-nums"></span>
+      <button id="flash-shuffle" class="text-sm px-3 py-1.5 rounded-lg bg-stone-200 font-semibold">🔀 Shuffle</button>
+      <span id="flash-count" class="ml-auto text-sm text-stone-500 tabular-nums"></span>
     </div>
     <div id="flash-card-wrap" class="mt-4"></div>
     <div class="flex items-center gap-2 mt-4">
-      <button id="flash-prev" class="flex-1 py-3 rounded-xl bg-white border border-slate-200 font-semibold active:scale-95">‹ Prev</button>
-      <button id="flash-known" class="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold active:scale-95">✓ Mastered</button>
-      <button id="flash-next" class="flex-1 py-3 rounded-xl bg-white border border-slate-200 font-semibold active:scale-95">Next ›</button>
+      <button id="flash-prev" class="flex-1 py-3 rounded-xl bg-paper border border-stone-200 font-semibold active:scale-95">‹ Prev</button>
+      <button id="flash-known" class="flex-1 py-3 rounded-xl bg-pine-600 text-white font-semibold active:scale-95">✓ Mastered</button>
+      <button id="flash-next" class="flex-1 py-3 rounded-xl bg-paper border border-stone-200 font-semibold active:scale-95">Next ›</button>
     </div>`;
   el.querySelector('#flash-filter').addEventListener('change', e=>{ flashState.filter=e.target.value; buildFlashOrder(); TAB_RENDER.flash(); });
   el.querySelector('#flash-shuffle').addEventListener('click', ()=>{ shuffle(flashState.order); flashState.idx=0; renderFlashCard(); });
@@ -770,26 +772,26 @@ function renderFlashCard(){
     <div class="card-3d animate-pop">
       <div id="card-inner" class="card-inner relative w-full" style="min-height:22rem">
         <!-- FRONT -->
-        <div class="card-face absolute inset-0 rounded-2xl bg-white shadow-lg border border-slate-100 p-6 flex flex-col">
+        <div class="card-face absolute inset-0 rounded-2xl bg-paper shadow-lg border border-stone-100 p-6 flex flex-col">
           <div class="flex items-center gap-2">
             <span class="text-xs font-bold px-2 py-0.5 rounded-full ${secChip(d.sec)}">${SECTIONS[d.sec].emoji} ${d.sec}</span>
-            ${state.known[d.id]?'<span class="text-xs font-bold text-emerald-600 ml-auto">✓ Mastered</span>':''}
+            ${state.known[d.id]?'<span class="text-xs font-bold text-pine-600 ml-auto">✓ Mastered</span>':''}
           </div>
           <div class="flex-1 grid place-items-center text-center px-2">
             <div>
-              <div class="text-2xl font-extrabold text-slate-900 leading-snug">${d.name}</div>
-              <div class="mt-3 text-sm text-slate-400">Tap to reveal the notes</div>
+              <div class="font-display font-semibold text-3xl text-pine-900 leading-snug">${d.name}</div>
+              <div class="mt-3 text-sm text-stone-400">Tap to reveal the notes</div>
             </div>
           </div>
           <div class="flex flex-wrap gap-1 justify-center">${flagsHtml}</div>
         </div>
         <!-- BACK -->
-        <div class="card-face card-back absolute inset-0 rounded-2xl bg-white shadow-lg border border-slate-100 p-5 overflow-y-auto">
-          <div class="text-lg font-extrabold text-slate-900 mb-2">${d.name}</div>
+        <div class="card-face card-back absolute inset-0 rounded-2xl bg-paper shadow-lg border border-stone-100 p-5 overflow-y-auto">
+          <div class="font-display font-semibold text-xl text-pine-900 mb-2">${d.name}</div>
           ${field('Table description', d.desc)}
           ${field('Process', d.process)}
           ${field('Allergies & replacements', d.allergies, 'rose')}
-          ${field('Mise en place', d.mise, 'slate')}
+          ${field('Mise en place', d.mise, 'stone')}
           <div class="flex flex-wrap gap-1 mt-3">${flagsHtml}</div>
         </div>
       </div>
@@ -802,8 +804,8 @@ function renderFlashCard(){
 }
 function field(label, val, color){
   if(!val || val==='—') return '';
-  const c = color==='rose' ? 'text-rose-600' : color==='slate' ? 'text-slate-400' : 'text-emerald-600';
-  return `<div class="mb-2"><div class="text-[11px] font-bold uppercase tracking-wide ${c}">${label}</div><div class="text-sm text-slate-700 leading-snug">${val}</div></div>`;
+  const c = color==='rose' ? 'text-rose-600' : color==='stone' ? 'text-stone-400' : 'text-pine-600';
+  return `<div class="mb-2"><div class="text-[11px] font-bold uppercase tracking-wide ${c}">${label}</div><div class="text-sm text-stone-700 leading-snug">${val}</div></div>`;
 }
 function flagPills(d){
   const out=[];
@@ -814,7 +816,7 @@ function flagPills(d){
     const suffix = v==='mod' ? ' · can modify' : '';
     out.push(`<span class="text-[11px] px-2 py-0.5 rounded-full ${cls}">${a.icon} ${a.label}${suffix}</span>`);
   }
-  if(!out.length) out.push('<span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">✓ no flagged allergens</span>');
+  if(!out.length) out.push('<span class="text-[11px] px-2 py-0.5 rounded-full bg-pine-100 text-pine-700">✓ no flagged allergens</span>');
   return out.join('');
 }
 
@@ -826,8 +828,8 @@ TAB_RENDER.quiz = function(){
   const el=document.getElementById('tab-quiz');
   el.innerHTML = `
     <div class="flex items-center gap-2">
-      <div class="text-sm text-slate-500">Session: <span id="q-score" class="font-bold text-slate-800"></span></div>
-      <button id="q-skip" class="ml-auto text-sm px-3 py-1.5 rounded-lg bg-slate-200 font-semibold">Skip ↻</button>
+      <div class="text-sm text-stone-500">Session: <span id="q-score" class="font-bold text-stone-800"></span></div>
+      <button id="q-skip" class="ml-auto text-sm px-3 py-1.5 rounded-lg bg-stone-200 font-semibold">Skip ↻</button>
     </div>
     <div id="q-body" class="mt-3"></div>`;
   el.querySelector('#q-skip').addEventListener('click', ()=> nextQuiz());
@@ -874,18 +876,18 @@ function makeQuestion(){
 function renderQuiz(){
   const q=quizState.q, body=document.getElementById('q-body'); if(!q||!body) return;
   body.innerHTML = `
-    <div class="rounded-2xl bg-white shadow-sm border border-slate-100 p-5 animate-pop">
-      <span class="text-[11px] font-bold uppercase tracking-wide text-sky-600">${q.tag}</span>
-      <h3 class="font-bold text-slate-900 mt-1 leading-snug">${q.prompt}</h3>
-      ${q.sub?`<p class="text-sm text-slate-500 italic mt-2 border-l-2 border-slate-200 pl-3">${q.sub}</p>`:''}
+    <div class="rounded-2xl bg-paper shadow-sm border border-stone-100 p-5 animate-pop">
+      <span class="text-[11px] font-bold uppercase tracking-wide text-brass-600">${q.tag}</span>
+      <h3 class="font-bold text-stone-900 mt-1 leading-snug">${q.prompt}</h3>
+      ${q.sub?`<p class="text-sm text-stone-500 italic mt-2 border-l-2 border-stone-200 pl-3">${q.sub}</p>`:''}
       <div id="q-opts" class="mt-4 space-y-2"></div>
       <div id="q-exp" class="mt-3 hidden text-sm rounded-xl p-3"></div>
-      <button id="q-cont" class="hidden mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-semibold">Continue ›</button>
+      <button id="q-cont" class="hidden mt-3 w-full py-3 rounded-xl bg-pine-800 text-cream font-semibold">Continue ›</button>
     </div>`;
   const optsBox = body.querySelector('#q-opts');
   q.options.forEach(opt=>{
     const b=document.createElement('button');
-    b.className='w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white font-medium active:scale-[.99] transition hover:border-sky-300';
+    b.className='w-full text-left px-4 py-3 rounded-xl border border-stone-200 bg-paper font-medium active:scale-[.99] transition hover:border-brass-400';
     b.textContent=opt;
     b.addEventListener('click', ()=> answerQuiz(opt, b));
     optsBox.appendChild(b);
@@ -903,13 +905,13 @@ function answerQuiz(opt, btn){
   save(); feedback(ok);
   document.querySelectorAll('#q-opts button').forEach(b=>{
     b.disabled=true;
-    if(b.textContent===q.answer){ b.className='w-full text-left px-4 py-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-semibold'; }
+    if(b.textContent===q.answer){ b.className='w-full text-left px-4 py-3 rounded-xl border-2 border-pine-600 bg-pine-50 font-semibold'; }
     else if(b===btn){ b.className='w-full text-left px-4 py-3 rounded-xl border-2 border-rose-500 bg-rose-50 font-semibold animate-shake'; }
-    else { b.className='w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-400'; }
+    else { b.className='w-full text-left px-4 py-3 rounded-xl border border-stone-200 bg-paper text-stone-400'; }
   });
   const exp=document.getElementById('q-exp');
-  exp.className = 'mt-3 text-sm rounded-xl p-3 '+(ok?'bg-emerald-50 text-emerald-800':'bg-rose-50 text-rose-800');
-  exp.innerHTML = (ok?'✅ <b>Correct!</b> ':'❌ <b>Not quite.</b> Answer: <b>'+q.answer+'</b>. ')+'<br><span class="text-slate-600">'+q.explain+'</span>';
+  exp.className = 'mt-3 text-sm rounded-xl p-3 '+(ok?'bg-pine-50 text-pine-800':'bg-rose-50 text-rose-800');
+  exp.innerHTML = (ok?'✅ <b>Correct!</b> ':'❌ <b>Not quite.</b> Answer: <b>'+q.answer+'</b>. ')+'<br><span class="text-stone-600">'+q.explain+'</span>';
   exp.classList.remove('hidden');
   document.getElementById('q-cont').classList.remove('hidden');
   updateQScore();
@@ -945,12 +947,12 @@ function renderGuard(){
   const r=guardState.round, body=document.getElementById('guard-body'); if(!r||!body) return;
   const acc = state.stats.guardTotal ? Math.round(100*state.stats.guardCorrect/state.stats.guardTotal) : 0;
   body.innerHTML = `
-    <div class="flex items-center text-sm text-slate-500">
-      <span>Correct calls: <b class="text-slate-800">${state.stats.guardCorrect}/${state.stats.guardTotal}</b> · ${acc}%</span>
+    <div class="flex items-center text-sm text-stone-500">
+      <span>Correct calls: <b class="text-stone-800">${state.stats.guardCorrect}/${state.stats.guardTotal}</b> · ${acc}%</span>
       <span class="ml-auto">🔥 ${state.streak}</span>
     </div>
 
-    <div class="mt-3 rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 text-white p-4 shadow-lg animate-pop">
+    <div class="mt-3 rounded-2xl bg-pine-900 text-cream border-l-4 border-brass-500 p-4 shadow-lg animate-pop">
       <div class="flex items-center gap-3">
         <div class="text-3xl">${r.profile.icon}</div>
         <div>
@@ -961,15 +963,15 @@ function renderGuard(){
       </div>
     </div>
 
-    <div class="mt-3 rounded-2xl bg-white shadow-sm border border-slate-100 p-5">
+    <div class="mt-3 rounded-2xl bg-paper shadow-sm border border-stone-100 p-5">
       <span class="text-xs font-bold px-2 py-0.5 rounded-full ${secChip(r.dish.sec)}">${SECTIONS[r.dish.sec].emoji} ${r.dish.sec}</span>
-      <h3 class="text-xl font-extrabold text-slate-900 mt-2 leading-snug">${r.dish.name}</h3>
-      <p class="text-sm text-slate-500 mt-1">${r.dish.desc}</p>
+      <h3 class="font-display font-semibold text-2xl text-pine-900 mt-2 leading-snug">${r.dish.name}</h3>
+      <p class="text-sm text-stone-500 mt-1">${r.dish.desc}</p>
       <div class="flex flex-wrap gap-1 mt-3">${flagPills(r.dish)}</div>
     </div>
 
     <div id="guard-actions" class="grid grid-cols-2 gap-3 mt-4">
-      <button data-act="approve" class="py-4 rounded-2xl bg-emerald-500 text-white font-bold text-lg active:scale-95 shadow">✓ Approve</button>
+      <button data-act="approve" class="py-4 rounded-2xl bg-pine-600 text-white font-bold text-lg active:scale-95 shadow">✓ Approve</button>
       <button data-act="reject" class="py-4 rounded-2xl bg-rose-500 text-white font-bold text-lg active:scale-95 shadow">✕ Reject</button>
     </div>
     <div id="guard-result" class="mt-4 hidden"></div>`;
@@ -999,13 +1001,13 @@ function answerGuard(act){
 
   document.querySelectorAll('#guard-actions button').forEach(b=> b.disabled=true);
   const res=document.getElementById('guard-result');
-  res.className = 'mt-4 rounded-2xl p-4 '+(ok?'bg-emerald-50 border border-emerald-200':'bg-rose-50 border border-rose-200');
+  res.className = 'mt-4 rounded-2xl p-4 '+(ok?'bg-pine-50 border border-pine-100':'bg-rose-50 border border-rose-200');
   res.innerHTML = `
-    <div class="font-bold ${ok?'text-emerald-700':'text-rose-700'}">${ok?'✅ Correct call!':'❌ Wrong call.'}</div>
-    <div class="text-sm mt-1 text-slate-700">Right answer: <b>${verdict}</b></div>
-    <div class="text-sm mt-2 text-slate-600"><b>Why:</b> ${trigTxt}.</div>
-    <div class="text-sm mt-2 text-slate-600 border-t border-slate-200/70 pt-2"><b>Notes:</b> ${r.dish.allergies}</div>
-    <button id="guard-next" class="mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-semibold">Next guest ›</button>`;
+    <div class="font-bold ${ok?'text-pine-700':'text-rose-700'}">${ok?'✅ Correct call!':'❌ Wrong call.'}</div>
+    <div class="text-sm mt-1 text-stone-700">Right answer: <b>${verdict}</b></div>
+    <div class="text-sm mt-2 text-stone-600"><b>Why:</b> ${trigTxt}.</div>
+    <div class="text-sm mt-2 text-stone-600 border-t border-stone-200/70 pt-2"><b>Notes:</b> ${r.dish.allergies}</div>
+    <button id="guard-next" class="mt-3 w-full py-3 rounded-xl bg-pine-800 text-cream font-semibold">Next guest ›</button>`;
   res.classList.remove('hidden');
   res.querySelector('#guard-next').addEventListener('click', ()=> nextGuard());
 }
@@ -1018,10 +1020,10 @@ TAB_RENDER.browser = function(){
   const el=document.getElementById('tab-browser');
   const secs=['all', ...Object.keys(SECTIONS)];
   el.innerHTML = `
-    <div class="sticky top-[140px] z-20 bg-slate-100 pb-2 -mx-1 px-1">
-      <input id="b-search" value="${browserState.q}" placeholder="Search dishes, ingredients, allergens…" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white shadow-sm" />
+    <div class="sticky top-[140px] z-20 bg-stone-100 pb-2 -mx-1 px-1">
+      <input id="b-search" value="${browserState.q}" placeholder="Search dishes, ingredients, allergens…" class="w-full px-4 py-3 rounded-xl border border-stone-200 bg-paper shadow-sm" />
       <div class="flex gap-1.5 mt-2 overflow-x-auto no-scrollbar">
-        ${secs.map(s=>`<button data-sec="${s}" class="bsec px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${s===browserState.sec?'bg-slate-900 text-white':'bg-white border border-slate-200 text-slate-600'}">${s==='all'?'All':SECTIONS[s].emoji+' '+s}</button>`).join('')}
+        ${secs.map(s=>`<button data-sec="${s}" class="bsec px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${s===browserState.sec?'bg-pine-800 text-cream':'bg-paper border border-stone-200 text-stone-600'}">${s==='all'?'All':SECTIONS[s].emoji+' '+s}</button>`).join('')}
       </div>
     </div>
     <div id="b-list" class="mt-3 space-y-2"></div>`;
@@ -1042,7 +1044,7 @@ function renderBrowserList(){
       return hay.includes(q);
     });
   }
-  if(!items.length){ list.innerHTML='<div class="text-center text-slate-400 py-10">No dishes match “'+browserState.q+'”.</div>'; return; }
+  if(!items.length){ list.innerHTML='<div class="text-center text-stone-400 py-10">No dishes match “'+browserState.q+'”.</div>'; return; }
   // group by section
   const groups={};
   items.forEach(d=> (groups[d.sec]=groups[d.sec]||[]).push(d));
@@ -1050,8 +1052,8 @@ function renderBrowserList(){
     return `<div class="pt-1">
       <div class="flex items-center gap-2 px-1 py-1">
         <span class="w-1.5 h-5 rounded-full ${secBar(sec)}"></span>
-        <h3 class="font-bold text-slate-700">${SECTIONS[sec].emoji} ${sec}</h3>
-        <span class="text-xs text-slate-400">${groups[sec].length}</span>
+        <h3 class="font-bold text-stone-700">${SECTIONS[sec].emoji} ${sec}</h3>
+        <span class="text-xs text-stone-400">${groups[sec].length}</span>
       </div>
       ${groups[sec].map(d=>browserRow(d)).join('')}
     </div>`;
@@ -1062,19 +1064,19 @@ function renderBrowserList(){
 }
 function browserRow(d){
   const open=browserState.open[d.id];
-  return `<div class="rounded-xl bg-white border border-slate-100 shadow-sm mb-2 overflow-hidden">
+  return `<div class="rounded-xl bg-paper border border-stone-100 shadow-sm mb-2 overflow-hidden">
     <button data-row="${d.id}" class="w-full text-left px-4 py-3 flex items-center gap-3">
       <div class="min-w-0 flex-1">
-        <div class="font-semibold text-slate-900 leading-snug">${d.name}</div>
-        <div class="text-xs text-slate-500 truncate">${d.desc}</div>
+        <div class="font-semibold text-stone-900 leading-snug">${d.name}</div>
+        <div class="text-xs text-stone-500 truncate">${d.desc}</div>
       </div>
-      <div class="text-slate-300 text-lg shrink-0">${open?'▲':'▼'}</div>
+      <div class="text-stone-300 text-lg shrink-0">${open?'▲':'▼'}</div>
     </button>
-    ${open?`<div class="px-4 pb-4 pt-1 border-t border-slate-100">
+    ${open?`<div class="px-4 pb-4 pt-1 border-t border-stone-100">
       ${field('Table description', d.desc)}
       ${field('Process', d.process)}
       ${field('Allergies & replacements', d.allergies, 'rose')}
-      ${field('Mise en place', d.mise, 'slate')}
+      ${field('Mise en place', d.mise, 'stone')}
       <div class="flex flex-wrap gap-1 mt-2">${flagPills(d)}</div>
     </div>`:''}
   </div>`;

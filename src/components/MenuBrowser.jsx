@@ -7,20 +7,25 @@ import Field from './Field.jsx'
 export default function MenuBrowser() {
   const [q, setQ] = useState('')
   const [sec, setSec] = useState('all')
-  const [diet, setDiet] = useState(null) // null = no dietary filter; PROFILES index
+  const [diets, setDiets] = useState([]) // selected PROFILES indices; guests can have several
+  const [mode, setMode] = useState('without') // 'without' = safe dishes; 'contains' = dishes with the allergen
   const [open, setOpen] = useState({})
 
   const sections = ['all', ...Object.keys(SECTIONS)]
 
-  const activeProfile = diet !== null ? PROFILES[diet] : null
+  const activeKeys = useMemo(() => [...new Set(diets.flatMap((i) => PROFILES[i].keys))], [diets])
 
   const groups = useMemo(() => {
     const needle = q.trim().toLowerCase()
     let items = DISHES.filter((d) => sec === 'all' || d.sec === sec)
-    if (activeProfile) {
-      // Show only dishes that are safe (no 'yes' flags for the profile's keys).
-      // Dishes with 'mod' flags are still included (safe with modification).
-      items = items.filter((d) => activeProfile.keys.every((k) => d.flags[k] !== 'yes'))
+    if (activeKeys.length) {
+      items =
+        mode === 'contains'
+          ? // Dishes where any selected allergen is present at all ('yes' or 'mod').
+            items.filter((d) => activeKeys.some((k) => d.flags[k]))
+          : // Safe dishes: no 'yes' flags for any selected profile's keys.
+            // Dishes with 'mod' flags are still included (safe with modification).
+            items.filter((d) => activeKeys.every((k) => d.flags[k] !== 'yes'))
     }
     if (needle) {
       items = items.filter((d) => {
@@ -45,7 +50,7 @@ export default function MenuBrowser() {
       ;(g[d.sec] = g[d.sec] || []).push(d)
     })
     return g
-  }, [q, sec, activeProfile])
+  }, [q, sec, activeKeys, mode])
 
   const hasResults = Object.keys(groups).length > 0
 
@@ -70,11 +75,27 @@ export default function MenuBrowser() {
           ))}
         </div>
         <div className="flex gap-1.5 mt-1.5 overflow-x-auto no-scrollbar">
+          <div className="flex rounded-full overflow-hidden border border-stone-300 shrink-0">
+            {[
+              ['contains', 'Contains'],
+              ['without', 'Does not contain'],
+            ].map(([m, label]) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`px-3 py-1.5 text-xs font-semibold whitespace-nowrap ${mode === m ? 'bg-pine-800 text-cream' : 'bg-paper text-stone-600'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           {PROFILES.map((p, i) => (
             <button
               key={p.name}
-              onClick={() => setDiet(diet === i ? null : i)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${diet === i ? 'bg-brass-600 text-white' : 'bg-paper border border-stone-200 text-stone-600'}`}
+              onClick={() =>
+                setDiets((ds) => (ds.includes(i) ? ds.filter((x) => x !== i) : [...ds, i]))
+              }
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${diets.includes(i) ? 'bg-brass-600 text-white' : 'bg-paper border border-stone-200 text-stone-600'}`}
             >
               {p.icon} {p.name}
             </button>

@@ -39,6 +39,7 @@ const LEVEL_BADGE = {
 export default function Flashcards() {
   const g = useGame()
   const [filter, setFilter] = useState('all')
+  const [deck, setDeck] = useState('notes') // 'notes' = full card; 'spiel' = table description only
   const [queue, setQueue] = useState(() => buildQueue(DISHES.map((d) => d.id), g.levels))
   const [idx, setIdx] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -136,6 +137,17 @@ export default function Flashcards() {
             </option>
           ))}
         </select>
+        <div className="flex rounded-lg overflow-hidden border border-stone-300">
+          {['notes', 'spiel'].map((d) => (
+            <button
+              key={d}
+              onClick={() => setDeck(d)}
+              className={`text-sm px-3 py-1.5 font-semibold ${deck === d ? 'bg-pine-800 text-cream' : 'bg-paper text-stone-600'}`}
+            >
+              {d === 'notes' ? 'Notes' : 'Spiel'}
+            </button>
+          ))}
+        </div>
         <button
           onClick={doShuffle}
           className="text-sm px-3 py-1.5 rounded-lg bg-stone-200 text-stone-700 font-semibold"
@@ -171,7 +183,11 @@ export default function Flashcards() {
                 <div className="font-display font-semibold text-3xl text-pine-900 leading-snug">
                   {dish.name}
                 </div>
-                <div className="mt-3 text-sm text-stone-400 italic">Tap to reveal the notes</div>
+                <div className="mt-3 text-sm text-stone-400 italic">
+                  {deck === 'spiel'
+                    ? 'Recite the table description, then tap to check'
+                    : 'Tap to reveal the notes'}
+                </div>
               </div>
             </div>
             <FlagPills dish={dish} />
@@ -179,13 +195,19 @@ export default function Flashcards() {
           {/* BACK */}
           <div className="card-face card-back absolute inset-0 rounded-2xl bg-paper shadow-lg border border-stone-200 p-5 overflow-y-auto">
             <div className="font-display font-semibold text-xl text-pine-900 mb-2">{dish.name}</div>
-            <Field label="Table description" value={dish.desc} />
-            <Field label="Process" value={dish.process} />
-            <Field label="Allergies & replacements" value={dish.allergies} tone="rose" />
-            <Field label="Mise en place" value={dish.mise} tone="slate" />
-            <div className="mt-3">
-              <FlagPills dish={dish} />
-            </div>
+            {deck === 'spiel' ? (
+              <Field label="Table description" value={dish.desc} />
+            ) : (
+              <>
+                <Field label="Table description" value={dish.desc} />
+                <Field label="Process" value={dish.process} />
+                <Field label="Allergies & replacements" value={dish.allergies} tone="rose" />
+                <Field label="Mise en place" value={dish.mise} tone="slate" />
+                <div className="mt-3">
+                  <FlagPills dish={dish} />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

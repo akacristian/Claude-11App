@@ -9,11 +9,11 @@ import MenuBrowser from './components/MenuBrowser.jsx'
 import { ProfileGate } from './components/Profiles.jsx'
 
 const TABS = [
-  { key: 'home', label: '🏠 Home' },
-  { key: 'flash', label: '🃏 Flashcards' },
-  { key: 'quiz', label: '❓ Quiz' },
-  { key: 'guard', label: '🛡️ Allergy Guard' },
-  { key: 'browser', label: '📖 Menu' },
+  { key: 'home', label: 'Home' },
+  { key: 'flash', label: 'Flashcards' },
+  { key: 'quiz', label: 'Quiz' },
+  { key: 'guard', label: 'Allergy Guard' },
+  { key: 'browser', label: 'Menu' },
 ]
 
 export default function App() {
@@ -24,17 +24,17 @@ export default function App() {
   if (!g.activeUser) return <ProfileGate />
 
   return (
-    <div className="bg-slate-100 text-slate-800 min-h-screen">
+    <div className="bg-cream text-stone-800 min-h-screen">
       {/* feedback flash overlay */}
       {g.flash && (
         <div
-          className={`pointer-events-none fixed inset-0 z-50 animate-flash ${g.flash === 'good' ? 'bg-emerald-400' : 'bg-rose-500'}`}
+          className={`pointer-events-none fixed inset-0 z-50 animate-flash ${g.flash === 'good' ? 'bg-pine-500' : 'bg-rose-500'}`}
         />
       )}
 
       <Header />
 
-      <nav className="sticky top-[88px] z-30 bg-slate-100/95 backdrop-blur border-b border-slate-200">
+      <nav className="sticky top-[88px] z-30 bg-cream/95 backdrop-blur border-b border-stone-300/60">
         <div className="max-w-4xl mx-auto px-2 flex gap-1 overflow-x-auto no-scrollbar">
           {TABS.map((t) => {
             const on = t.key === tab
@@ -45,7 +45,7 @@ export default function App() {
                   setTab(t.key)
                   window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
-                className={`px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 ${on ? 'border-emerald-500 text-slate-900' : 'border-transparent text-slate-500'}`}
+                className={`px-4 py-2.5 text-[13px] font-semibold uppercase tracking-wide whitespace-nowrap border-b-2 transition-colors ${on ? 'border-brass-500 text-pine-800' : 'border-transparent text-stone-500 hover:text-stone-700'}`}
               >
                 {t.label}
               </button>

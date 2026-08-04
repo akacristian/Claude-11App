@@ -21,24 +21,25 @@ function buildQueue(ids, levels) {
 }
 
 const GRADE_BTN = {
-  again: 'bg-rose-500',
-  hard: 'bg-orange-500',
-  okay: 'bg-sky-500',
-  easy: 'bg-emerald-500',
+  again: 'bg-rose-600',
+  hard: 'bg-amber-600',
+  okay: 'bg-sky-700',
+  easy: 'bg-pine-600',
 }
 const GRADE_LABEL = { again: 'Again', hard: 'Hard', okay: 'Okay', easy: 'Easy' }
 const GRADE_HINT = { again: 'show often', hard: 'struggling', okay: 'almost', easy: 'learned' }
 
 const LEVEL_BADGE = {
   again: { label: 'Again', cls: 'text-rose-600' },
-  hard: { label: 'Hard', cls: 'text-orange-600' },
-  okay: { label: 'Okay', cls: 'text-sky-600' },
-  easy: { label: '✓ Mastered', cls: 'text-emerald-600' },
+  hard: { label: 'Hard', cls: 'text-amber-600' },
+  okay: { label: 'Okay', cls: 'text-sky-700' },
+  easy: { label: '✓ Mastered', cls: 'text-pine-600' },
 }
 
 export default function Flashcards() {
   const g = useGame()
   const [filter, setFilter] = useState('all')
+  const [deck, setDeck] = useState('notes') // 'notes' = full card; 'spiel' = table description only
   const [queue, setQueue] = useState(() => buildQueue(DISHES.map((d) => d.id), g.levels))
   const [idx, setIdx] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -128,7 +129,7 @@ export default function Flashcards() {
         <select
           value={filter}
           onChange={(e) => applyFilter(e.target.value)}
-          className="text-sm rounded-lg border-slate-200 border px-2 py-1.5 bg-white"
+          className="text-sm rounded-lg border-stone-300 border px-2 py-1.5 bg-paper"
         >
           {sections.map((s) => (
             <option key={s} value={s}>
@@ -136,13 +137,24 @@ export default function Flashcards() {
             </option>
           ))}
         </select>
+        <div className="flex rounded-lg overflow-hidden border border-stone-300">
+          {['notes', 'spiel'].map((d) => (
+            <button
+              key={d}
+              onClick={() => setDeck(d)}
+              className={`text-sm px-3 py-1.5 font-semibold ${deck === d ? 'bg-pine-800 text-cream' : 'bg-paper text-stone-600'}`}
+            >
+              {d === 'notes' ? 'Notes' : 'Spiel'}
+            </button>
+          ))}
+        </div>
         <button
           onClick={doShuffle}
-          className="text-sm px-3 py-1.5 rounded-lg bg-slate-200 font-semibold"
+          className="text-sm px-3 py-1.5 rounded-lg bg-stone-200 text-stone-700 font-semibold"
         >
-          🔀 Shuffle
+          Shuffle
         </button>
-        <span className="ml-auto text-sm text-slate-500 tabular-nums">
+        <span className="ml-auto text-sm text-stone-500 tabular-nums">
           {counts.mastered}/{counts.total} mastered
         </span>
       </div>
@@ -157,7 +169,7 @@ export default function Flashcards() {
           onClick={flip}
         >
           {/* FRONT */}
-          <div className="card-face absolute inset-0 rounded-2xl bg-white shadow-lg border border-slate-100 p-6 flex flex-col">
+          <div className="card-face absolute inset-0 rounded-2xl bg-paper shadow-lg border border-stone-200 p-6 flex flex-col">
             <div className="flex items-center gap-2">
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${secChip(dish.sec)}`}>
                 {SECTIONS[dish.sec].emoji} {dish.sec}
@@ -168,24 +180,34 @@ export default function Flashcards() {
             </div>
             <div className="flex-1 grid place-items-center text-center px-2">
               <div>
-                <div className="text-2xl font-extrabold text-slate-900 leading-snug">
+                <div className="font-display font-semibold text-3xl text-pine-900 leading-snug">
                   {dish.name}
                 </div>
-                <div className="mt-3 text-sm text-slate-400">Tap to reveal the notes</div>
+                <div className="mt-3 text-sm text-stone-400 italic">
+                  {deck === 'spiel'
+                    ? 'Recite the table description, then tap to check'
+                    : 'Tap to reveal the notes'}
+                </div>
               </div>
             </div>
             <FlagPills dish={dish} />
           </div>
           {/* BACK */}
-          <div className="card-face card-back absolute inset-0 rounded-2xl bg-white shadow-lg border border-slate-100 p-5 overflow-y-auto">
-            <div className="text-lg font-extrabold text-slate-900 mb-2">{dish.name}</div>
-            <Field label="Table description" value={dish.desc} />
-            <Field label="Process" value={dish.process} />
-            <Field label="Allergies & replacements" value={dish.allergies} tone="rose" />
-            <Field label="Mise en place" value={dish.mise} tone="slate" />
-            <div className="mt-3">
-              <FlagPills dish={dish} />
-            </div>
+          <div className="card-face card-back absolute inset-0 rounded-2xl bg-paper shadow-lg border border-stone-200 p-5 overflow-y-auto">
+            <div className="font-display font-semibold text-xl text-pine-900 mb-2">{dish.name}</div>
+            {deck === 'spiel' ? (
+              <Field label="Table description" value={dish.desc} />
+            ) : (
+              <>
+                <Field label="Table description" value={dish.desc} />
+                <Field label="Process" value={dish.process} />
+                <Field label="Allergies & replacements" value={dish.allergies} tone="rose" />
+                <Field label="Mise en place" value={dish.mise} tone="slate" />
+                <div className="mt-3">
+                  <FlagPills dish={dish} />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -207,13 +229,13 @@ export default function Flashcards() {
       <div className="flex items-center gap-2 mt-2">
         <button
           onClick={prev}
-          className="flex-1 py-2.5 rounded-xl bg-white border border-slate-200 font-semibold active:scale-95"
+          className="flex-1 py-2.5 rounded-xl bg-paper border border-stone-300 text-stone-700 font-semibold active:scale-95"
         >
           ‹ Prev
         </button>
         <button
           onClick={next}
-          className="flex-1 py-2.5 rounded-xl bg-white border border-slate-200 font-semibold active:scale-95"
+          className="flex-1 py-2.5 rounded-xl bg-paper border border-stone-300 text-stone-700 font-semibold active:scale-95"
         >
           Skip ›
         </button>
@@ -227,14 +249,14 @@ function ProgressBar({ counts }) {
   const pct = (n) => (total ? (100 * n) / total : 0)
   return (
     <div className="mt-3">
-      <div className="flex h-3 rounded-full overflow-hidden bg-slate-200">
-        <div className="bg-emerald-500" style={{ width: pct(mastered) + '%' }} />
-        <div className="bg-amber-400" style={{ width: pct(studying) + '%' }} />
+      <div className="flex h-3 rounded-full overflow-hidden bg-stone-200">
+        <div className="bg-pine-600" style={{ width: pct(mastered) + '%' }} />
+        <div className="bg-brass-400" style={{ width: pct(studying) + '%' }} />
       </div>
-      <div className="flex gap-3 mt-1.5 text-[11px] text-slate-500">
-        <Legend color="bg-emerald-500" label="Mastered" value={mastered} />
-        <Legend color="bg-amber-400" label="Studying" value={studying} />
-        <Legend color="bg-slate-300" label="To study" value={fresh} />
+      <div className="flex gap-3 mt-1.5 text-[11px] text-stone-500">
+        <Legend color="bg-pine-600" label="Mastered" value={mastered} />
+        <Legend color="bg-brass-400" label="Studying" value={studying} />
+        <Legend color="bg-stone-300" label="To study" value={fresh} />
       </div>
     </div>
   )
@@ -244,7 +266,7 @@ function Legend({ color, label, value }) {
   return (
     <span className="flex items-center gap-1">
       <span className={`w-2.5 h-2.5 rounded-full ${color}`} />
-      {label} <span className="font-bold text-slate-700 tabular-nums">{value}</span>
+      {label} <span className="font-bold text-stone-700 tabular-nums">{value}</span>
     </span>
   )
 }

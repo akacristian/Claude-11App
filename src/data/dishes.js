@@ -16,13 +16,14 @@ export const SECTIONS = {
   Dessert: { color: 'pink', emoji: '🍰' },
   Cheese: { color: 'indigo', emoji: '🧀' },
   'Bar Menu': { color: 'cyan', emoji: '🍔' },
+  'Set Menus': { color: 'slate', emoji: '📋' },
 }
 
 export const DISHES = [
   /* 1 */ {
     id: 1,
     sec: 'Appetisers',
-    name: 'Appellation Oysters',
+    name: 'Sydney Rock Oyster, Sauce Mignonette',
     desc: 'Sydney Rock Oysters [from Location] served with mignonette.',
     process:
       'Oysters are shucked to order and served on rock salt with lemon cheek and mignonette. Mignonette is made from Red Wine Vinegar, Sugar, and finished with eschalots, chives and black pepper.',
@@ -34,10 +35,10 @@ export const DISHES = [
   /* 2 */ {
     id: 2,
     sec: 'Appetisers',
-    name: 'Fried Ricotta Dumplings (Cod Roe OR Baerri Caviar)',
-    desc: 'Fried ricotta dumplings with whipped cod roe OR Baerri Caviar.',
+    name: 'Fried Ricotta Dumplings (Cod Roe OR Oscietra Caviar 10g)',
+    desc: 'Fried ricotta dumplings with whipped cod roe OR Oscietra Caviar (10g).',
     process:
-      'Dumplings are made from ricotta, lemon zest, salt, baking powder and egg. Piped onto a spoon and deep fried to order. Once cooked they are seasoned with Kombu powder (dehydrated Taki Kombu) and served with either whipped cod roe or Baerri Caviar (if Caviar, also served with creme fraiche and chives garnish). Whipped Cod Roe is made from Salted Cod roe.',
+      'Dumplings are made from ricotta, lemon zest, salt, baking powder and egg. Piped onto a spoon and deep fried to order. Once cooked they are seasoned with Kombu powder (dehydrated Taki Kombu) and served with either whipped cod roe or Oscietra Caviar (if Caviar, also served with creme fraiche and chives garnish). Whipped Cod Roe is made from Salted Cod roe.',
     allergies:
       'Dairy (Ricotta, Creme Fraiche) cannot be modified. Contains egg. Contains Gluten. Seafood > leave the roe or caviar off. Fish > leave the roe or caviar off. Alliums: Chives > can be left off.',
     mise: 'Small spoon with roe.',
@@ -93,17 +94,6 @@ export const DISHES = [
       'Can be Gluten free but not coeliac friendly (fried in same oils). Dipping sauce has alliums, seafood, garlic, oysters/shellfish – cannot modify.',
     mise: 'Dipping sauce cannot be modified.',
     flags: { shellfish: 'yes', fish: 'yes', gluten: 'mod', alliums: 'yes' },
-  },
-
-  /* 8 */ {
-    id: 8,
-    sec: 'Appetisers',
-    name: '2GR Full-Blood Wagyu Bresaola – 50g',
-    desc: 'Full-blood Wagyu Bresaola (currently only on bar menu).',
-    process: 'Sliced thin Wagyu Bresaola.',
-    allergies: 'Not halal.',
-    mise: 'Fork and spoon.',
-    flags: { halal: 'yes' },
   },
 
   /* 9 */ {
@@ -166,7 +156,7 @@ export const DISHES = [
   /* 13 */ {
     id: 13,
     sec: 'Starters',
-    name: 'Jerusalem Artichoke Tart, Cavolo Nero, Hazelnut, Citrus Sabayon',
+    name: 'Jerusalem Artichoke Tart, Hazelnut, Citrus Sabayon',
     desc: 'Roast Jerusalem artichoke tart, layered with cavolo nero, caramelised onion and a citrus sabayon sauce.',
     process:
       'Artichokes roasted then warmed with a verde (hazelnut, garlic, rappe, lemon juice), seasoned with salt, pepper, chives. Set in a brisée tart shell over caramelised onion. Pickled eschalots and a citrus sabayon (yuzu kosho, yuzu juice, egg) on top, seasoned with wakame powder. Rappe Verde contains: mint, herbs, hazelnut, ginger, garlic, eschalot, cime de rapa, white balsamic, pickled eschalots, citrus sabayon.',
@@ -235,19 +225,6 @@ export const DISHES = [
     flags: { gluten: 'yes', nuts: 'yes', alliums: 'yes', halal: 'yes', alcohol: 'yes' },
   },
 
-  /* 18 */ {
-    id: 18,
-    sec: 'Pasta',
-    name: 'Radiatori Stracciatella, Zucchini, Pea and Mint',
-    desc: 'Radiatori with stracciatella, zucchini, pea shoots and mint.',
-    process:
-      'Zucchini, mint and basil blitzed into a paste as the sauce base; pasta tossed through, garnished with stracciatella, pea shoots, preserved lemon and pangrattato (breadcrumb garnish – breadcrumbs, nothing added).',
-    allergies:
-      'Gluten (substitute for vegan pasta) and no crumb. Contains alliums in the crumb. Pasta is egg free. Pasta shape is vegan friendly.',
-    mise: 'Fork + spoon.',
-    flags: { gluten: 'mod', dairy: 'yes', alliums: 'mod' },
-  },
-
   /* 19 */ {
     id: 19,
     sec: 'Pasta',
@@ -272,7 +249,7 @@ export const DISHES = [
   /* 20 */ {
     id: 20,
     sec: 'Pasta',
-    name: 'Prawn Ravioli, Spanner Crab, Sauce Vierge',
+    name: 'Prawn Ravioli, Spanner Crab, Sauce Vierge, Hazelnut',
     desc: 'Prawn Ravioli, Spanner crab, sauce vierge, hazelnuts, tomato.',
     process:
       'One larger square ravioli stuffed with prawn mousse, with mascarpone and chives in the mix. Sauce vierge made by roasting tomatoes, removing skins and blitzing with white wine vinegar, olive oil, salt, pepper; garnished with eschalot and herbs. Finished with spanner crab meat and tomatoes. Roasted hazelnuts sprinkled through.',
@@ -347,19 +324,6 @@ export const DISHES = [
     flags: { gluten: 'yes', alcohol: 'mod', halal: 'mod' },
   },
 
-  /* 25 */ {
-    id: 25,
-    sec: 'Salads',
-    name: 'Marinated Tuna Salad, Strawberry, Heirloom Tomato (Set Menu)',
-    desc: 'Marinated tuna salad, strawberry, heirloom tomato, basil.',
-    process:
-      'Strawberries and tomatoes sliced fresh, layered across the plate, tuna laid on top. Dressed with umami vin (olive oil, kombu extract, rice wine vinegar); dressing is tomato water (has garlic), fermented strawberry juice, coriander seed, olive oil and rice wine vinegar. Finished with basil.',
-    allergies:
-      'Seafood / Raw Fish. Alcohol (vinegar). Cannot be allium free because of the garlic. Gluten free.',
-    mise: 'Fork and spoon.',
-    flags: { fish: 'yes', alliums: 'yes', nightshade: 'yes', alcohol: 'yes', halal: 'mod' },
-  },
-
   /* 26 */ {
     id: 26,
     sec: 'Salads',
@@ -383,7 +347,7 @@ export const DISHES = [
   /* 27 */ {
     id: 27,
     sec: 'Mains',
-    name: 'Cauliflower, Cippolini Onions & Parmesan Gratin',
+    name: 'Cauliflower, Hazelnut & Parmesan Gratin',
     desc: 'Cauliflower, hazelnut and parmesan gratin.',
     process:
       'Gratin of sliced cauliflower, roasted and caramelised in brown butter, parmesan and chives. Sauce of white soy, butter, roasted cauliflower and buttermilk + hazelnut oil. Topped with soft herbs and pickled eschalot.',
@@ -447,22 +411,10 @@ export const DISHES = [
     },
   },
 
-  /* 31 */ {
-    id: 31,
-    sec: 'For the Table',
-    name: 'Grilled Eastern Rock Lobster, Shellfish Butter',
-    desc: 'Grilled Eastern Rock Lobster, shellfish butter, tarragon, lime.',
-    process:
-      'Grilled with crab butter, finished with more crab butter and shellfish bisque. Served on the side: a rice dish (risotto) with chorizo and shellfish sauce, charred lemon and finger lime.',
-    allergies: 'Cannot be made DF or GF.',
-    mise: 'Fork, spoon and teaspoons for sauces.',
-    flags: { shellfish: 'yes', dairy: 'yes', gluten: 'yes', halal: 'yes' },
-  },
-
   /* 32 */ {
     id: 32,
     sec: 'For the Table',
-    name: 'Coal Roasted Murray Cod, Fermented Red Pepper Butter',
+    name: 'Coal Roasted Murray Cod, Red Pepper Sauce',
     desc: 'Murray Cod with fermented red pepper butter and soft herbs.',
     process:
       'A piece of Murray Cod (approx 320g) dried then roasted over coals. Red peppers (capsicums) charred then peeled, blended with vinegars, red yuzu kosho and butter.',
@@ -499,12 +451,12 @@ export const DISHES = [
   /* 35 */ {
     id: 35,
     sec: 'Steaks From the Grill',
-    name: '200g Brooklyn Valley MS3+ Tenderloin (Pepper Sauce)',
+    name: '200g Brooklyn Valley MS3+ Tenderloin',
     desc: 'Brooklyn Valley Tenderloin with a pepper sauce.',
     process:
       'Premium MBS 3+ free range grass fed beef exclusive to Haverick Meats, sourced from the Gippsland Region.',
     allergies: 'Sauce has dairy AND gluten – can be on the side. Sauce contains alliums.',
-    mise: 'Steak knife to be set by waiter.',
+    mise: 'Steak knife to be set by waiter. All steaks cooked over the wood-fired grill, served with red wine jus and mustards. Sauces +$5: Peppercorn, Café de Paris, Béarnaise.',
     flags: { dairy: 'mod', gluten: 'mod', alliums: 'mod' },
   },
 
@@ -516,7 +468,7 @@ export const DISHES = [
     process:
       'Black Opal wagyu cattle raised on Tasmanian and Victorian pastures. Grass fed and finished on grain (minimum 380 days on grain).',
     allergies: 'Red wine jus can be on the side.',
-    mise: 'Steak knife to be set by waiter.',
+    mise: 'Steak knife to be set by waiter. All steaks cooked over the wood-fired grill, served with red wine jus and mustards. Sauces +$5: Peppercorn, Café de Paris, Béarnaise.',
     flags: { alcohol: 'mod' },
   },
 
@@ -528,7 +480,7 @@ export const DISHES = [
     process:
       'Bone-in New York strip (bone-in sirloin / porterhouse). More dry-aged than the other steak options. Kidman beef raised on QLD and NT land.',
     allergies: 'na.',
-    mise: 'Steak knife to be set by waiter.',
+    mise: 'Steak knife to be set by waiter. All steaks cooked over the wood-fired grill, served with red wine jus and mustards. Sauces +$5: Peppercorn, Café de Paris, Béarnaise.',
     flags: {},
   },
 
@@ -552,19 +504,19 @@ export const DISHES = [
     desc: 'Riverine Ribeye [state cook temperature]. Cannot be cooked half-half due to thickness and multiple muscle groups.',
     process: '—',
     allergies: 'na.',
-    mise: 'Steak knife to be set by waiter.',
+    mise: 'Steak knife to be set by waiter. All steaks cooked over the wood-fired grill, served with red wine jus and mustards. Sauces +$5: Peppercorn, Café de Paris, Béarnaise.',
     flags: {},
   },
 
   /* 40 */ {
     id: 40,
     sec: 'Steaks From the Grill',
-    name: 'F1 Westholme Wagyu T-Bone',
+    name: '800g Westholme F1 Wagyu T-Bone',
     desc: '800g F1 Wagyu T-Bone [state cook temperature].',
     process:
       'T-Bone (Fiorentina / Bistecca): sirloin on one side, t-bone in the middle, tenderloin on the other. F1 refers to genetics (Angus and Wagyu 50/50). Served with cafe de paris butter on top. Cannot be cooked half-half due to the shape of the cut.',
     allergies: 'Dairy – Cafe de Paris butter can be left off.',
-    mise: 'Steak knife to be set by waiter.',
+    mise: 'Steak knife to be set by waiter. All steaks cooked over the wood-fired grill, served with red wine jus and mustards. Sauces +$5: Peppercorn, Café de Paris, Béarnaise.',
     flags: { dairy: 'mod' },
   },
 
@@ -742,8 +694,115 @@ export const DISHES = [
     process:
       'Westholme beef from the northern ranges of Australia (mid-QLD up to Darwin). Roughly 16 million acres of rangeland stewarded, guided by the natural ecosystem of northern Australia.',
     allergies: 'na.',
-    mise: 'Steak knife to be set by waiter.',
+    mise: 'Steak knife to be set by waiter. All steaks cooked over the wood-fired grill, served with red wine jus and mustards. Sauces +$5: Peppercorn, Café de Paris, Béarnaise.',
     flags: {},
+  },
+
+  /* 55 */ {
+    id: 55,
+    sec: 'Appetisers',
+    name: 'Pacific Oyster, Sauce Mignonette',
+    desc: 'Pacific Oysters served with mignonette.',
+    process:
+      'Oysters are shucked to order and served on rock salt with lemon cheek and mignonette. Mignonette is made from Red Wine Vinegar, Sugar, and finished with eschalots, chives and black pepper.',
+    allergies: 'Shellfish, Seafood. Alliums – in mignonette, can be removed.',
+    mise: 'Oyster Fork – Waiter to place on table. Small silver spoon with mignonette.',
+    flags: { shellfish: 'yes', fish: 'yes', alliums: 'mod' },
+  },
+
+  /* 56 */ {
+    id: 56,
+    sec: 'Pasta',
+    name: 'Trottole, Winter Black Truffle, Cep Mushroom',
+    desc: 'Trottole pasta with winter black truffle and cep mushroom.',
+    process:
+      'Truffle season: David Coomer Black Manjimup Truffle can be added for +$20. [Full kitchen notes to be confirmed.]',
+    allergies: 'Gluten (pasta). [Full allergen notes to be confirmed with the kitchen.]',
+    mise: 'Fork + spoon.',
+    flags: { gluten: 'yes' },
+  },
+
+  /* 57 */ {
+    id: 57,
+    sec: 'Salads',
+    name: 'Charred Carrot, Black Garlic, Wild Rice, Parsley',
+    desc: 'Charred carrot with black garlic, wild rice and parsley.',
+    process: '[Full kitchen notes to be confirmed.]',
+    allergies: 'Alliums (black garlic). [Full allergen notes to be confirmed with the kitchen.]',
+    mise: 'Fork and spoon.',
+    flags: { alliums: 'yes' },
+  },
+
+  /* 58 */ {
+    id: 58,
+    sec: 'Mains',
+    name: 'Spiced Tuna Steak, Escabeche, Olive Brine Veloute',
+    desc: 'Spiced tuna steak with escabeche and an olive brine veloute.',
+    process: '[Full kitchen notes to be confirmed.]',
+    allergies: 'Fish (tuna). [Full allergen notes to be confirmed with the kitchen.]',
+    mise: 'Fork, spoon.',
+    flags: { fish: 'yes' },
+  },
+
+  /* 59 */ {
+    id: 59,
+    sec: 'For the Table',
+    name: 'Port Lincoln Balmain Bug, Chorizo Rice, Finger Lime, Tarragon',
+    desc: 'Port Lincoln Balmain Bug with chorizo rice, finger lime and tarragon.',
+    process:
+      'Shared dish for 2–4 people. Served with a chorizo rice, charred lemon and finger lime. [Full kitchen notes to be confirmed.]',
+    allergies:
+      'Shellfish. Chorizo (pork – not halal). [Full allergen notes to be confirmed with the kitchen.]',
+    mise: 'Fork, spoon and teaspoons for sauces.',
+    flags: { shellfish: 'yes', halal: 'yes' },
+  },
+
+  /* 60 */ {
+    id: 60,
+    sec: 'Set Menus',
+    name: 'Classic Set Menu — $118pp (min 2 people)',
+    desc: 'AP’s Baguette; Raw Bluefin Tuna; Abrolhos Island Scallop; Wagyu Beef Tartare; choice of 250g O’Connor Grass Fed Scotch Fillet OR Mafaldine Prawn & Pork Bolognese; Green Leaf Salad + Barrack Seasoned Fries; Red Velvet Cake.',
+    process:
+      'Set menus are available for the whole table only. Starters: AP’s Baguette with cultured butter; Raw Bluefin Tuna, green olive, crème fraîche; Abrolhos Island Scallop, mandarin brown butter, coriander oil; Wagyu Beef Tartare, caramelised mustard, tarragon. Mains (choice): 250g O’Connor Grass Fed Scotch Fillet OR Mafaldine prawn & pork bolognese — served with Green Leaf Salad (chardonnay vinaigrette) and Barrack Seasoned Fries. Dessert: Red Velvet Cake, blackberry compote, crème fraîche. Supplements: Sydney Rock Oyster +$7.50 ea; Cheese +$35 pp.',
+    allergies:
+      'Combined menu allergens (see each dish for details): Gluten, Dairy, Egg, Fish, Shellfish, Nuts, Alliums, Nightshade, Alcohol (in some dishes, can modify), not halal (steak/bolognese).',
+    mise: 'Whole table only. Minimum 2 people.',
+    flags: {
+      gluten: 'yes',
+      dairy: 'yes',
+      egg: 'yes',
+      fish: 'yes',
+      shellfish: 'yes',
+      nuts: 'yes',
+      alliums: 'yes',
+      nightshade: 'yes',
+      alcohol: 'mod',
+      halal: 'yes',
+    },
+  },
+
+  /* 61 */ {
+    id: 61,
+    sec: 'Set Menus',
+    name: 'Premium Set Menu — $190pp (min 4 people)',
+    desc: 'Fried Ricotta Dumplings; Bluefin Tuna Crumpet; Duck Liver Parfait; Smoked Garlic & Herb Bread; Pickled Oyster Mushroom Skewer; Duck, Pork & Pistachio Terrine; Coal Roasted Murray Cod + 450g O’Connor Bone-In Sirloin; Poached Rhubarb dessert.',
+    process:
+      'Set menus are available for the whole table only. Starters: Fried Ricotta Dumplings with whipped cod’s roe; Bluefin Tuna Crumpet, horseradish cream, chives; Duck Liver Parfait, choux au craquelin, Banyuls jelly; Smoked Garlic & Herb Bread, aged cheddar; Pickled Oyster Mushroom Skewer, sesame yoghurt, fried chilli; Duck, Pork and Pistachio Terrine, pickled prune, mustard. Mains: Coal Roasted Murray Cod with red pepper sauce AND 450g O’Connor Bone-In Sirloin — served with Green Leaf Salad (chardonnay vinaigrette) and Baked Potato (mustard, pancetta, sour cream). Dessert: Poached Rhubarb, vanilla custard, hibiscus granita. Supplements: Sydney Rock Oyster +$7.50 ea; Cheese +$35 pp.',
+    allergies:
+      'Combined menu allergens (see each dish for details): Gluten, Dairy, Egg, Fish, Nuts, Sesame, Alliums, Nightshade, Alcohol, not halal (pancetta/terrine).',
+    mise: 'Whole table only. Minimum 4 people.',
+    flags: {
+      gluten: 'yes',
+      dairy: 'yes',
+      egg: 'yes',
+      fish: 'yes',
+      nuts: 'yes',
+      sesame: 'yes',
+      alliums: 'yes',
+      nightshade: 'yes',
+      alcohol: 'yes',
+      halal: 'yes',
+    },
   },
 ]
 

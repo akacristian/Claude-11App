@@ -100,25 +100,29 @@ export default function Quiz() {
   return (
     <div>
       <div className="flex items-center gap-2">
-        <div className="text-sm text-slate-500">
+        <div className="text-sm text-stone-500">
           Session:{' '}
-          <span className="font-bold text-slate-800">
+          <span className="font-bold text-stone-800">
             {session.correct} / {session.total}
           </span>
         </div>
         <button
           onClick={next}
-          className="ml-auto text-sm px-3 py-1.5 rounded-lg bg-slate-200 font-semibold"
+          className="ml-auto text-sm px-3 py-1.5 rounded-lg bg-stone-200 text-stone-700 font-semibold"
         >
           Skip ↻
         </button>
       </div>
 
-      <div className="mt-3 rounded-2xl bg-white shadow-sm border border-slate-100 p-5 animate-pop">
-        <span className="text-[11px] font-bold uppercase tracking-wide text-sky-600">{q.tag}</span>
-        <h3 className="font-bold text-slate-900 mt-1 leading-snug">{q.prompt}</h3>
+      <div className="mt-3 rounded-2xl bg-paper shadow-sm border border-stone-200 p-5 animate-pop">
+        <span className="text-[11px] font-bold uppercase tracking-widest text-brass-600">
+          {q.tag}
+        </span>
+        <h3 className="font-display font-semibold text-lg text-pine-900 mt-1 leading-snug">
+          {q.prompt}
+        </h3>
         {q.sub && (
-          <p className="text-sm text-slate-500 italic mt-2 border-l-2 border-slate-200 pl-3">
+          <p className="text-sm text-stone-500 italic mt-2 border-l-2 border-brass-200 pl-3">
             {q.sub}
           </p>
         )}
@@ -126,17 +130,17 @@ export default function Quiz() {
         <div className="mt-4 space-y-2">
           {q.options.map((opt, i) => {
             let cls =
-              'w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white font-medium active:scale-[.99] transition hover:border-sky-300'
+              'w-full text-left px-4 py-3 rounded-xl border border-stone-200 bg-paper font-medium active:scale-[.99] transition hover:border-brass-400'
             if (picked) {
               if (opt === q.answer)
                 cls =
-                  'w-full text-left px-4 py-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-semibold'
+                  'w-full text-left px-4 py-3 rounded-xl border-2 border-pine-600 bg-pine-50 font-semibold'
               else if (opt === picked)
                 cls =
                   'w-full text-left px-4 py-3 rounded-xl border-2 border-rose-500 bg-rose-50 font-semibold animate-shake'
               else
                 cls =
-                  'w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-400'
+                  'w-full text-left px-4 py-3 rounded-xl border border-stone-200 bg-paper text-stone-400'
             }
             return (
               <button key={i} disabled={!!picked} onClick={() => answer(opt)} className={cls}>
@@ -149,7 +153,7 @@ export default function Quiz() {
         {picked && (
           <>
             <div
-              className={`mt-3 text-sm rounded-xl p-3 ${picked === q.answer ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}`}
+              className={`mt-3 text-sm rounded-xl p-3 ${picked === q.answer ? 'bg-pine-50 text-pine-800' : 'bg-rose-50 text-rose-800'}`}
             >
               {picked === q.answer ? (
                 <>
@@ -161,11 +165,11 @@ export default function Quiz() {
                 </>
               )}
               <br />
-              <span className="text-slate-600">{q.explain}</span>
+              <span className="text-stone-600">{q.explain}</span>
             </div>
             <button
               onClick={next}
-              className="mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-semibold"
+              className="mt-3 w-full py-3 rounded-xl bg-pine-800 text-cream font-semibold"
             >
               Continue ›
             </button>

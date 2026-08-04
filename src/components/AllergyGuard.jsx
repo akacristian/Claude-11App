@@ -52,10 +52,10 @@ export default function AllergyGuard() {
 
   return (
     <div>
-      <div className="flex items-center text-sm text-slate-500">
+      <div className="flex items-center text-sm text-stone-500">
         <span>
           Correct calls:{' '}
-          <b className="text-slate-800">
+          <b className="text-stone-800">
             {g.stats.guardCorrect}/{g.stats.guardTotal}
           </b>{' '}
           · {acc}%
@@ -63,25 +63,29 @@ export default function AllergyGuard() {
         <span className="ml-auto">🔥 {g.streak}</span>
       </div>
 
-      <div className="mt-3 rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 text-white p-4 shadow-lg animate-pop">
+      <div className="mt-3 rounded-2xl bg-pine-900 text-cream p-4 shadow-lg animate-pop border-l-4 border-brass-500">
         <div className="flex items-center gap-3">
           <div className="text-3xl">{profile.icon}</div>
           <div>
-            <div className="text-xs uppercase tracking-wide text-white/80">Guest at the pass</div>
-            <div className="font-bold text-lg leading-tight">{guest}</div>
-            <div className="text-sm">
-              Allergy / requirement: <b>{profile.name}</b>
+            <div className="text-[11px] uppercase tracking-widest text-brass-200">
+              Guest at the pass
+            </div>
+            <div className="font-display font-semibold text-lg leading-tight">{guest}</div>
+            <div className="text-sm text-pine-100">
+              Allergy / requirement: <b className="text-cream">{profile.name}</b>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-3 rounded-2xl bg-white shadow-sm border border-slate-100 p-5">
+      <div className="mt-3 rounded-2xl bg-paper shadow-sm border border-stone-200 p-5">
         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${secChip(dish.sec)}`}>
           {SECTIONS[dish.sec].emoji} {dish.sec}
         </span>
-        <h3 className="text-xl font-extrabold text-slate-900 mt-2 leading-snug">{dish.name}</h3>
-        <p className="text-sm text-slate-500 mt-1">{dish.desc}</p>
+        <h3 className="font-display font-semibold text-2xl text-pine-900 mt-2 leading-snug">
+          {dish.name}
+        </h3>
+        <p className="text-sm text-stone-500 mt-1">{dish.desc}</p>
         <div className="mt-3">
           <FlagPills dish={dish} />
         </div>
@@ -91,36 +95,36 @@ export default function AllergyGuard() {
         <div className="grid grid-cols-2 gap-3 mt-4">
           <button
             onClick={() => decide('approve')}
-            className="py-4 rounded-2xl bg-emerald-500 text-white font-bold text-lg active:scale-95 shadow"
+            className="py-4 rounded-2xl bg-pine-600 text-white font-bold text-lg active:scale-95 shadow"
           >
             ✓ Approve
           </button>
           <button
             onClick={() => decide('reject')}
-            className="py-4 rounded-2xl bg-rose-500 text-white font-bold text-lg active:scale-95 shadow"
+            className="py-4 rounded-2xl bg-rose-600 text-white font-bold text-lg active:scale-95 shadow"
           >
             ✕ Reject
           </button>
         </div>
       ) : (
         <div
-          className={`mt-4 rounded-2xl p-4 ${correct ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}
+          className={`mt-4 rounded-2xl p-4 ${correct ? 'bg-pine-50 border border-pine-100' : 'bg-rose-50 border border-rose-200'}`}
         >
-          <div className={`font-bold ${correct ? 'text-emerald-700' : 'text-rose-700'}`}>
+          <div className={`font-bold ${correct ? 'text-pine-700' : 'text-rose-700'}`}>
             {correct ? '✅ Correct call!' : '❌ Wrong call.'}
           </div>
-          <div className="text-sm mt-1 text-slate-700">
+          <div className="text-sm mt-1 text-stone-700">
             Right answer: <b>{verdict}</b>
           </div>
-          <div className="text-sm mt-2 text-slate-600">
+          <div className="text-sm mt-2 text-stone-600">
             <b>Why:</b> {trigTxt}.
           </div>
-          <div className="text-sm mt-2 text-slate-600 border-t border-slate-200/70 pt-2">
+          <div className="text-sm mt-2 text-stone-600 border-t border-stone-200/70 pt-2">
             <b>Notes:</b> {dish.allergies}
           </div>
           <button
             onClick={next}
-            className="mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-semibold"
+            className="mt-3 w-full py-3 rounded-xl bg-pine-800 text-cream font-semibold"
           >
             Next guest ›
           </button>

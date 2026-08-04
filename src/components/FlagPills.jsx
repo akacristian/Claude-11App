@@ -17,7 +17,7 @@ export default function FlagPills({ dish }) {
     pills.push(
       <span
         key="none"
-        className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700"
+        className="text-[11px] px-2 py-0.5 rounded-full bg-pine-100 text-pine-700"
       >
         ✓ no flagged allergens
       </span>

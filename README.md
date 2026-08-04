@@ -3,7 +3,7 @@
 A gamified, mobile-first training app for learning the **Eleven Barrack** restaurant
 food notes (May 2026). Built with **React + Vite + Tailwind CSS**.
 
-The full menu — 54 dishes across 12 sections — is encoded as the game database, with
+The full menu — 56 dishes across 13 sections (including the June set menus) — is encoded as the game database, with
 each dish's table description, process, allergies/replacements, mise en place, and a
 structured allergen matrix.
 

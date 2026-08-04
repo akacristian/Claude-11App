@@ -38,7 +38,7 @@ in a browser rather than relying on unit tests.
 ## Architecture
 
 **Single data source.** `src/data/dishes.js` exports everything the game runs on:
-`DISHES` (53 dishes), `SECTIONS` (12, each with a colour + emoji), `ALLERGENS`,
+`DISHES` (56 dishes incl. 2 set menus), `SECTIONS` (13, each with a colour + emoji), `ALLERGENS`,
 `PROFILES` (guest restriction profiles), and `GUEST_NAMES`. All four modes read from
 these arrays; there is no API. The data was transcribed from the source Word document
 "Food Notes May 2026."

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { DISHES, SECTIONS, PROFILES, GUEST_NAMES } from '../data/dishes.js'
-import { rand, statusFor, secChip, ALLERGEN_LABEL } from '../lib/utils.js'
+import { rand, statusFor, secChip, ALLERGEN_LABEL, REDACT } from '../lib/utils.js'
 import { useGame } from '../hooks/useGameState.jsx'
 import FlagPills from './FlagPills.jsx'
 
@@ -85,7 +85,7 @@ export default function AllergyGuard() {
         <h3 className="font-display font-semibold text-2xl text-pine-900 mt-2 leading-snug">
           {dish.name}
         </h3>
-        <p className="text-sm text-stone-500 mt-1">{dish.desc}</p>
+        <p className={`text-sm text-stone-500 mt-1 ${REDACT}`}>{dish.desc}</p>
         <div className="mt-3">
           <FlagPills dish={dish} />
         </div>
@@ -120,7 +120,7 @@ export default function AllergyGuard() {
             <b>Why:</b> {trigTxt}.
           </div>
           <div className="text-sm mt-2 text-stone-600 border-t border-stone-200/70 pt-2">
-            <b>Notes:</b> {dish.allergies}
+            <b>Notes:</b> <span className={REDACT}>{dish.allergies}</span>
           </div>
           <button
             onClick={next}

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { DISHES, PROFILES, ALLERGENS } from '../data/dishes.js'
-import { rand, shuffle, pickDistinct, statusFor, ALLERGEN_LABEL } from '../lib/utils.js'
+import { rand, shuffle, pickDistinct, statusFor, ALLERGEN_LABEL, REDACT } from '../lib/utils.js'
 import { useGame } from '../hooks/useGameState.jsx'
 
 function makeQuestion() {
@@ -122,7 +122,9 @@ export default function Quiz() {
           {q.prompt}
         </h3>
         {q.sub && (
-          <p className="text-sm text-stone-500 italic mt-2 border-l-2 border-brass-200 pl-3">
+          <p
+            className={`text-sm text-stone-500 italic mt-2 border-l-2 border-brass-200 pl-3 ${REDACT}`}
+          >
             {q.sub}
           </p>
         )}
@@ -165,7 +167,7 @@ export default function Quiz() {
                 </>
               )}
               <br />
-              <span className="text-stone-600">{q.explain}</span>
+              <span className={`text-stone-600 ${REDACT}`}>{q.explain}</span>
             </div>
             <button
               onClick={next}

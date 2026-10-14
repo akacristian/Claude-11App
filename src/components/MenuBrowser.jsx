@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { DISHES, SECTIONS, ALLERGENS, PROFILES } from '../data/dishes.js'
-import { secBar, ALLERGEN_LABEL } from '../lib/utils.js'
+import { secBar, ALLERGEN_LABEL, REDACT } from '../lib/utils.js'
 import FlagPills from './FlagPills.jsx'
 import Field from './Field.jsx'
 
@@ -155,7 +155,7 @@ function Row({ dish, open, onToggle }) {
       <button onClick={onToggle} className="w-full text-left px-4 py-3 flex items-center gap-3">
         <div className="min-w-0 flex-1">
           <div className="font-semibold text-pine-900 leading-snug">{dish.name}</div>
-          <div className="text-xs text-stone-500 truncate">{dish.desc}</div>
+          <div className={`text-xs text-stone-500 truncate ${REDACT}`}>{dish.desc}</div>
           <AllergenDots dish={dish} filter="yes" />
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">

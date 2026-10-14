@@ -10,6 +10,13 @@ body {
   background: #f4f0e6;
   color: #292524;
 }
+/* Portfolio mode: hide private manual text */
+.redact {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+}
+
 ::selection {
   background: #e9d8b4;
 }

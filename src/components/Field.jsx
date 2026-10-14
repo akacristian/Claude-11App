@@ -1,3 +1,5 @@
+import { REDACT } from '../lib/utils.js'
+
 export default function Field({ label, value, tone }) {
   if (!value || value === '—') return null
   const c =
@@ -5,7 +7,7 @@ export default function Field({ label, value, tone }) {
   return (
     <div className="mb-2">
       <div className={`text-[11px] font-bold uppercase tracking-widest ${c}`}>{label}</div>
-      <div className="text-sm text-stone-700 leading-snug">{value}</div>
+      <div className={`text-sm text-stone-700 leading-snug ${REDACT}`}>{value}</div>
     </div>
   )
 }

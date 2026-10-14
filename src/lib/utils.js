@@ -1,5 +1,8 @@
 import { SECTIONS, ALLERGENS } from '../data/dishes.js'
 
+// Portfolio builds (`--mode portfolio`) scramble private manual text; this class blurs it.
+export const REDACT = import.meta.env.MODE === 'portfolio' ? 'redact' : ''
+
 export const ALLERGEN_LABEL = Object.fromEntries(ALLERGENS.map((a) => [a.key, a.label]))
 
 export function rand(arr) {
